@@ -1,0 +1,261 @@
+.crear-container {
+  font-family: 'Roboto', sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 70vh;
+  text-align: center;
+  padding: 2rem;
+}
+
+.crear-container h1 {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  color: #43a047;
+}
+
+.crear-container p {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  color: #666;
+}
+
+.volver-btn {
+  background: #2196f3;
+  color: #fff;
+  border: none;
+  border-radius: 25px;
+  padding: 0.8rem 2rem;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.volver-btn:hover {
+  background: #1976d2;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4);
+}
+
+/* estilos css del reac */
+
+
+
+/* ============================================
+   ANIMACIONES DEL DASHBOARD - QUIZZY
+   ============================================ */
+
+/* --------------------------------------------
+   SIDEBAR - Barra lateral colapsable
+   -------------------------------------------- */
+
+/* Sidebar en estado expandido (ancho completo) */
+.sidebar-expanded {
+
+  width: 250px;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Sidebar en estado colapsado (solo iconos) */
+.sidebar-collapsed {
+  
+  width: 80px;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-base {
+  position: absolute;
+  top: 70px;
+  left: 0;
+  height: calc(100vh - 70px);
+  background-color: #4caf50;
+  border-top-right-radius: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 999;
+}
+
+/* --------------------------------------------
+   TEXTOS DEL SIDEBAR
+   -------------------------------------------- */
+
+/* Textos visibles cuando el sidebar estรก expandido */
+.sidebar-text-visible {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.3s ease-in-out 0.1s, visibility 0s 0.1s;
+}
+
+/* Textos ocultos cuando el sidebar estรก colapsado */
+.sidebar-text-hidden {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease-in-out, visibility 0s 0.2s;
+}
+
+/* --------------------------------------------
+   BOTร�N DE CHEVRONES (Colapsar/Expandir)
+   -------------------------------------------- */
+
+/* Botรณn en posiciรณn cuando sidebar estรก expandido */
+.chevron-expanded {
+  left: 214px; /* 250px (sidebar) - 16px (mitad del botรณn) es para mover el boton */
+  transform: rotate(0deg);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Botรณn en posiciรณn cuando sidebar estรก colapsado */
+.chevron-collapsed {
+  left: 18px; /* 80px (sidebar) - 16px (mitad del botรณn) */
+  transform: rotate(180deg);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Estilos base del botón de chevrones */
+.chevron-button {
+  position: absolute;
+  top: 88px; /* Lo bajamos un poco */
+  width: 32px;
+  height: 32px;
+  border-radius: 4px; /* Hacemos el botón circular */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000; /* Asegura que esté por encima de otros elementos */
+}
+
+/* Efecto hover en el botรณn de chevrones */
+.chevron-button:hover {
+  opacity: 0.8;
+  cursor: pointer;
+  transform: scale(1.1);
+  transition: all 0.2s ease;
+}
+
+/* --------------------------------------------
+   TARJETAS DE CUESTIONARIOS
+   -------------------------------------------- */
+
+/* Tarjeta con borde inferior verde (subrayado) */
+.quiz-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  border-bottom: 4px solid #4caf50;
+  transition: all 0.3s ease;
+}
+
+/* Efecto hover en las tarjetas */
+.quiz-card:hover {
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  transform: translateY(-2px);
+  border-bottom-width: 6px;
+}
+
+/* --------------------------------------------
+   BOTONES DE ACCIร�N (Editar/Eliminar)
+   -------------------------------------------- */
+
+/* Efecto hover en botones de acciรณn */
+.action-button {
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.action-button:hover {
+  opacity: 0.7;
+  transform: scale(1.15);
+}
+
+/* Botรณn de editar (verde) */
+.edit-button:hover {
+  filter: brightness(1.2);
+}
+
+/* Botรณn de eliminar (rojo) */
+.delete-button:hover {
+  filter: brightness(1.2);
+}
+
+/* --------------------------------------------
+   ICONOS DEL SIDEBAR
+   -------------------------------------------- */
+
+/* Iconos en estado expandido */
+.sidebar-icon-expanded {
+  transition: all 0.3s ease;
+}
+
+/* Iconos en estado colapsado (centrados) */
+.sidebar-icon-collapsed {
+  left: 28px;
+  transition: all 0.3s ease;
+}
+
+/* --------------------------------------------
+   MENU DEL SIDEBAR
+   -------------------------------------------- */
+
+.sidebar-menu {
+  padding: 50px 0 20px 0;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.sidebar-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-icon {
+  margin-right: 10px;
+  flex-shrink: 0;
+  font-size: 24px;
+  color: white;
+}
+
+.sidebar-text {
+  font-size: 16px;
+  color: white;
+  white-space: nowrap;
+}
+
+/* --------------------------------------------
+   ANIMACIร�N DEL CONTENIDO PRINCIPAL
+   -------------------------------------------- */
+
+/* Contenido cuando sidebar estรก expandido */
+.content-expanded {
+  margin-left: 250px;
+  transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Contenido cuando sidebar estรก colapsado */
+.content-collapsed {
+  margin-left: 80px;
+  transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --------------------------------------------
+   UTILIDADES GENERALES
+   -------------------------------------------- */
+
+/* Transiciรณn suave para elementos interactivos */
+.smooth-transition {
+  transition: all 0.3s ease;
+}
+
+/* Efecto de elevaciรณn al hacer hover */
+.hover-lift:hover {
+  transform: translateY(-2px);
+  transition: transform 0.2s ease;
+}

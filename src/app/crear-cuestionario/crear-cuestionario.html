@@ -1,0 +1,48 @@
+<!-- SIDEBAR - Barra lateral con animación de colapso/expansión -->
+<div
+  class="sidebar-base"
+  [class.sidebar-expanded]="!isSidebarCollapsed"
+  [class.sidebar-collapsed]="isSidebarCollapsed"
+>
+  <div class="sidebar-menu">
+    <div class="sidebar-item">
+      <i class="material-icons sidebar-icon" [class.sidebar-icon-expanded]="!isSidebarCollapsed" [class.sidebar-icon-collapsed]="isSidebarCollapsed">description</i>
+      <span class="sidebar-text" [class.sidebar-text-visible]="!isSidebarCollapsed" [class.sidebar-text-hidden]="isSidebarCollapsed">Cuestionarios</span>
+    </div>
+    <div class="sidebar-item">
+      <i class="material-icons sidebar-icon" [class.sidebar-icon-expanded]="!isSidebarCollapsed" [class.sidebar-icon-collapsed]="isSidebarCollapsed">bar_chart</i>
+      <span class="sidebar-text" [class.sidebar-text-visible]="!isSidebarCollapsed" [class.sidebar-text-hidden]="isSidebarCollapsed">Resultados</span>
+    </div>
+    <div class="sidebar-item">
+      <i class="material-icons sidebar-icon" [class.sidebar-icon-expanded]="!isSidebarCollapsed" [class.sidebar-icon-collapsed]="isSidebarCollapsed">settings</i>
+      <span class="sidebar-text" [class.sidebar-text-visible]="!isSidebarCollapsed" [class.sidebar-text-hidden]="isSidebarCollapsed">Configuración</span>
+    </div>
+  </div>
+</div>
+
+<!-- BOTÓN DE COLAPSAR/EXPANDIR SIDEBAR con animación de rotación -->
+<div
+  (click)="toggleSidebar()"
+  class="chevron-button"
+  [class.chevron-expanded]="!isSidebarCollapsed"
+  [class.chevron-collapsed]="isSidebarCollapsed"
+>
+  <!-- Icono de chevrones (usamos SVG simple por ahora) -->
+  <svg style="width: 100%; height: 100%;" fill="none" preserveAspectRatio="none" viewBox="0 0 24 24">
+    <path d="M15 18L9 12L15 6" stroke="#F3F3F3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</div>
+
+<!-- CONTENIDO PRINCIPAL - Se ajusta con margen dinámico -->
+<div
+  class="transition-all duration-400"
+  [class.content-expanded]="!isSidebarCollapsed"
+  [class.content-collapsed]="isSidebarCollapsed"
+>
+
+  <div class="crear-container">
+    <h1>Crear Nuevo Cuestionario</h1>
+    <p>¡Aquí puedes crear tu propio cuestionario!</p>
+    <button class="volver-btn" (click)="volverHome()">Volver al Inicio</button>
+  </div>
+</div>

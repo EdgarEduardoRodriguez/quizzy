@@ -1,0 +1,26 @@
+<header class="encabezado">
+  <div class="encabezado-container">
+    <div class="encabezado-brand">
+      <span class="brand-icon">🧠</span>
+      <h1>Quizzy</h1>
+    </div>
+    <nav class="encabezado-menu">
+      <button class="encabezado-boton" (click)="onMenuClick('inicio')">
+        <span class="icono">🏠</span>
+        Inicio
+      </button>
+      <button class="encabezado-boton" (click)="onMenuClick('login')" *ngIf="!isCrearCuestionarioPage()">
+        <span class="icono">👤</span>
+        Iniciar Sesión
+      </button>
+      <button class="encabezado-boton" (click)="onMenuClick('registro')" *ngIf="!isCrearCuestionarioPage()">
+        <span class="icono">📝</span>
+        Registrarse
+      </button>
+      <button class="crear-cuestionario-btn" (click)="onCrearCuestionario()" *ngIf="isCrearCuestionarioPage()">
+        <span class="icono-plus">➕</span>
+        Crear Cuestionario
+      </button>
+    </nav>
+  </div>
+</header>
