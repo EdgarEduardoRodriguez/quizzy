@@ -32,13 +32,12 @@ export class Encabezado {
 
   // metodo para verificar si estamos en la pagina de crear cuestionario
   isCrearCuestionarioPage(): boolean {
-    return this.router.url === '/crear-cuestionario';
+    return this.router.url === '/crear-cuestionario' || this.router.url === '/crear-cuestionario-form';
   }
 
   // metodo para crear un nuevo cuestionario
   onCrearCuestionario() {
-    alert('¡Funcionalidad para crear cuestionario activada! Aquí podrías abrir un modal o formulario.');
-    // Aquí podrías: abrir un modal, navegar a un formulario, etc.
+    this.router.navigate(['/crear-cuestionario-form']);
   }
 
 }

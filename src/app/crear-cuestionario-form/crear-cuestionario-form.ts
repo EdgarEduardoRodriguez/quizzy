@@ -2,12 +2,12 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-crear-cuestionario',
+  selector: 'app-crear-cuestionario-form',
   imports: [],
-  templateUrl: './crear-cuestionario.html',
-  styleUrl: './crear-cuestionario.css'
+  templateUrl: './crear-cuestionario-form.html',
+  styleUrl: './crear-cuestionario-form.css'
 })
-export class CrearCuestionario {
+export class CrearCuestionarioForm {
   constructor(private router: Router) {}
 
   // propiedad para controlar si el sidebar esta colapsado
@@ -21,5 +21,5 @@ export class CrearCuestionario {
   toggleSidebar() {
     this.isSidebarCollapsed = !this.isSidebarCollapsed;
   }
-  
+
 }
