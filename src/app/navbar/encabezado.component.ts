@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { Location } from '@angular/common'; 
 
 
 // el decorara component le dice a angular que esto es un componente
@@ -14,7 +15,7 @@ export class Encabezado {
   // aqui puedo definir propiedades y metodos de tu barra
   menuItems: string[] = ['inicio', 'login', 'registro'];
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private location: Location) {}
 
   // este metodo se ejecuta cuando haces clic en un boton
   onMenuClick(item: string) {
@@ -32,7 +33,12 @@ export class Encabezado {
 
   // metodo para verificar si estamos en la pagina de crear cuestionario
   isCrearCuestionarioPage(): boolean {
-    return this.router.url === '/crear-cuestionario' || this.router.url === '/crear-cuestionario-form';
+    return this.router.url === '/crear-cuestionario';
+  }
+
+  // metodo para verificar si debemos mostrar los botones normales (inicio, login, registro)
+  shouldShowNormalButtons(): boolean {
+    return this.router.url === '/home';
   }
 
   // metodo para crear un nuevo cuestionario
@@ -40,4 +46,11 @@ export class Encabezado {
     this.router.navigate(['/crear-cuestionario-form']);
   }
 
+  goBack() {
+    this.location.back();
+  }
+
+  shouldShowBackButton(): boolean {
+    return this.router.url === '/crear-cuestionario-form'; 
+  }
 }

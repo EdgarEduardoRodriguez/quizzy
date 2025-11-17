@@ -4,8 +4,14 @@
     [class.sidebar-expanded]="!isSidebarCollapsed"
     [class.sidebar-collapsed]="isSidebarCollapsed"
 >
-
-    <!-- sidebar vacio, sin menu-->
+    <div class="sidebar-menu">
+        <div class="sidebar-title" *ngIf="!isSidebarCollapsed">Mis interacciones</div>
+        <div class="sidebar-item" (click)="onAgregarPregunta()">
+            <i class="material-icons sidebar-icon" [class.sidebar-icon-expanded]="!isSidebarCollapsed" [class.sidebar-icon-collapsed]="isSidebarCollapsed">add</i>
+            <span class="sidebar-text" [class.sidebar-text-visible]="!isSidebarCollapsed" [class.sidebar-text-hidden]="isSidebarCollapsed">Agregar pregunta</span>
+        </div>
+        <div class="sidebar-title" *ngIf="!isSidebarCollapsed">Mis preguntas</div>
+    </div>
 </div>
 
 <!-- BOTON DE COLAPSAR/EXPANDIR con animacion de rotacion-->
@@ -29,8 +35,6 @@
 >
 
     <div class="crear-container">
-        <h1>Crear Nuevo Cuestionario</h1>
-        <p>¡Aquí puedes crear tu propio cuestionario!</p>
-        <button class="volver-btn" (click)="volverHome()">Volver al Inicio</button>
+
     </div>
 </div>

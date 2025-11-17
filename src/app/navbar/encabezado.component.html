@@ -9,11 +9,15 @@
         <span class="icono">🏠</span>
         Inicio
       </button>
-      <button class="encabezado-boton" (click)="onMenuClick('login')" *ngIf="!isCrearCuestionarioPage()">
+      <button class="encabezado-boton" (click)="goBack()" *ngIf="shouldShowBackButton()">
+        <span class="icono">⬅️</span>
+        Volver
+      </button>
+      <button class="encabezado-boton" (click)="onMenuClick('login')" *ngIf="shouldShowNormalButtons()">
         <span class="icono">👤</span>
         Iniciar Sesión
       </button>
-      <button class="encabezado-boton" (click)="onMenuClick('registro')" *ngIf="!isCrearCuestionarioPage()">
+      <button class="encabezado-boton" (click)="onMenuClick('registro')" *ngIf="shouldShowNormalButtons()">
         <span class="icono">📝</span>
         Registrarse
       </button>

@@ -204,6 +204,13 @@
   padding: 50px 0 20px 0;
 }
 
+.sidebar-title {
+  font-size: 16px;
+  color: white;
+  margin-bottom: 15px;
+  padding-left: 20px; /* Alinea con los items */
+}
+
 .sidebar-item {
   display: flex;
   align-items: center;
