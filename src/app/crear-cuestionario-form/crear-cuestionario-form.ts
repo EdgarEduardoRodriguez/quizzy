@@ -14,6 +14,9 @@ export class CrearCuestionarioForm {
   // propiedad para controlar si el sidebar esta colapsado
   isSidebarCollapsed: boolean = false;
 
+  // propiedad para animar las tarjetas de opciones
+  animateCards: boolean = false;
+
   volverHome() {
     this.router.navigate(['/home']);
   }
@@ -28,6 +31,10 @@ export class CrearCuestionarioForm {
   }
 
   onAgregarPregunta() {
-    alert('Agregar pregunta');
+    this.animateCards = true;
+  }
+
+  seleccionarTipo(tipo: string) {
+    alert(`Seleccionaste: ${tipo}`);
   }
 }
