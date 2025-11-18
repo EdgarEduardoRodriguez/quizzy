@@ -35,15 +35,13 @@
 >
 
     <div class="crear-container">
-        <h1>Crear Cuestionario</h1>
-        <p>Selecciona el tipo de pregunta que deseas agregar</p>
-
-        <div class="interaction-grid" [class.animate-cards]="animateCards">
+        <!-- Vista de opciones de preguntas -->
+        <div *ngIf="currentView === 'options'" class="interaction-grid" [class.animate-cards]="animateCards">
 
             <!-- Opción múltiple -->
             <div class="interaction-card" (click)="seleccionarTipo('multiple')">
             <div class="card-icon blue">
-                <i class="material-icons">check_box</i>
+                <i class="material-icons">checklist</i>
             </div>
             <h3>Opción múltiple</h3>
             </div>
@@ -64,6 +62,82 @@
             <h3>Cuestionario</h3>
             </div>
 
+        </div>
+
+        <!-- Vista del formulario de pregunta múltiple -->
+        <div *ngIf="currentView === 'form'" class="multiple-choice-form">
+            <div class="config-container">
+                <div class="header">
+                    <div class="title-group">
+                        <div class="dropdown-container">
+                            <div class="dropdown-trigger-area" (click)="toggleDropdown()">
+                                <i class="material-icons">checklist</i>
+                                <span>Opción múltiple</span>
+                                <i class="material-icons">keyboard_arrow_down</i>
+                            </div>
+                            <div class="dropdown-menu" [class.show]="showDropdown">
+                                
+                                <div class="dropdown-option" (click)="selectQuestionType('multiple')">Opción múltiple</div>
+                                <div class="dropdown-option" (click)="selectQuestionType('abierta')">Pregunta abierta</div>
+                                <div class="dropdown-option" (click)="selectQuestionType('cuestionario')">Cuestionario</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="config-icon">
+                        <i class="material-icons">settings</i>
+                        <span>Configuración de pregunta</span>
+                    </div>
+                </div>
+
+                <div class="content">
+                    <input
+                        type="text"
+                        class="question-input"
+                        placeholder="¿Qué desea preguntar?"
+                        [(ngModel)]="questionText"
+                        autofocus>
+
+                    <!-- Formulario para opción múltiple -->
+                    <div *ngIf="selectedQuestionType === 'multiple'">
+                        <div class="options-list">
+                            <div class="option-row" *ngFor="let option of options; let i = index; trackBy: trackByIndex">
+                                <input
+                                    type="text"
+                                    class="option-input"
+                                    [placeholder]="'Opción ' + (i + 1)"
+                                    [(ngModel)]="option.text">
+                                <span class="material-icons delete-option" (click)="removeOption(i)">close</span>
+                            </div>
+                        </div>
+
+                        <div class="add-option" (click)="addOption()">
+                            <i class="material-icons">add</i>
+                            <span>Añadir opción</span>
+                        </div>
+                    </div>
+
+                    <!-- Formulario para pregunta abierta -->
+                    <div *ngIf="selectedQuestionType === 'abierta'" class="open-question-form">
+                        <textarea
+                            class="open-question-textarea"
+                            placeholder="El estudiante podrá escribir su respuesta aquí..."
+                            readonly></textarea>
+                        <p class="form-hint">Esta pregunta permitirá respuestas abiertas y extensas.</p>
+                    </div>
+
+                    <!-- Formulario para cuestionario -->
+                    <div *ngIf="selectedQuestionType === 'cuestionario'" class="quiz-form">
+                        <div class="quiz-info">
+                            <i class="material-icons">info</i>
+                            <p>Los cuestionarios permiten agrupar múltiples preguntas relacionadas.</p>
+                        </div>
+                        <div class="add-question-btn">
+                            <i class="material-icons">add</i>
+                            <span>Agregar pregunta al cuestionario</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
