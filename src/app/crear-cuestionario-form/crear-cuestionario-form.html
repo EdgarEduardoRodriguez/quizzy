@@ -71,8 +71,8 @@
                     <div class="title-group">
                         <div class="dropdown-container">
                             <div class="dropdown-trigger-area" (click)="toggleDropdown()">
-                                <i class="material-icons">checklist</i>
-                                <span>Opción múltiple</span>
+                                <i class="material-icons">{{ currentQuestionTypeConfig.icon}}</i>
+                                <span>{{ currentQuestionTypeConfig.name }}</span>
                                 <i class="material-icons">keyboard_arrow_down</i>
                             </div>
                             <div class="dropdown-menu" [class.show]="showDropdown">
@@ -127,7 +127,6 @@
                             class="open-question-textarea"
                             placeholder="El estudiante podrá escribir su respuesta aquí..."
                             readonly></textarea>
-                        <p class="form-hint">Esta pregunta permitirá respuestas abiertas y extensas.</p>
                     </div>
 
                     <!-- Formulario para cuestionario -->

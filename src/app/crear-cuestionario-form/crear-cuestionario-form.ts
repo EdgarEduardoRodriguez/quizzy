@@ -24,6 +24,18 @@ export class CrearCuestionarioForm {
   // propiedad para el tipo de pregunta seleccionado en el dropdown
   selectedQuestionType: string = 'multiple';
 
+  // mapeo de tipos de pregunta con sus iconos y nombres
+  questionTypeConfig: { [key: string]: { icon: string, name: string} } = {
+    'multiple': { icon: 'checklist', name: 'Opción múltiple' },
+    'abierta': { icon: 'chat_bubble_outline', name: 'Pregunta abierta' },
+    'cuestionario': { icon: 'assignment', name: 'Cuestionario' }
+  };
+
+  //propiedad computada para obtener la configutracion del tipo actual
+  get currentQuestionTypeConfig() {
+    return this.questionTypeConfig[this.selectedQuestionType] || this.questionTypeConfig['multiple'];
+  }
+
   // propiedad para mostrar/ocultar el dropdown personalizado
   showDropdown: boolean = false;
 
