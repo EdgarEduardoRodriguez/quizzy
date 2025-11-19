@@ -118,4 +118,25 @@ export class CrearCuestionarioForm {
     console.log('Tipo de pregunta cambiado a:', this.selectedQuestionType);
   }
 
+  // metodo para eliminar la pregunta actual
+  deleteQuestion() {
+    if (confirm('¿Estás seguro de que quieres eliminar esta pregunta?')) {
+      // Reset all form data
+      this.questionText = '';
+      this.options = [
+        { text: ''},
+        { text: ''},
+        { text: ''},
+        { text: ''}
+      ];
+      this.selectedQuestionType = 'multiple';
+      this.showDropdown = false;
+
+      // Go back to options view
+      this.currentView = 'options';
+
+      console.log('Pregunta eliminada');
+    }
+  }
+
 }
