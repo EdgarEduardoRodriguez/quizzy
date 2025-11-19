@@ -87,7 +87,7 @@
                         <div class="delete-icon" (click)="deleteQuestion()">
                             <i class="material-icons">delete</i>
                         </div>
-                        <div class="config-icon">
+                        <div class="config-icon" (click)="toggleConfigSidebar(); $event.stopPropagation()">
                             <i class="material-icons">settings</i>
                             <span>Configuración de pregunta</span>
                         </div>
@@ -144,4 +144,24 @@
             </div>
         </div>
     </div>
+
+    <!-- sidebar derecho de configuracio -->
+    <div class="config-sidebar" [class.open]="showConfigSidebar">
+        <div class="config-sidebar-header">
+            <div class="config-sidebar-title">
+                <span>Configuración de pregunta</span>
+            </div>
+            <div class="config-sidebar-close" (click)="toggleConfigSidebar()">
+                <span>Cerrar</span>
+                <i class="material-icons">cancel</i>
+            </div>
+        </div>
+        <div class="config-sidebar-content">
+            <!-- aqui ira el contenido de configuracion -->
+        </div>
+    </div>
+    <!-- overlay para cerrar el sidebar haciendo click afuera -->
+     <div class="config-sidebar-overlay"
+     [class.active]="showConfigSidebar"
+     (click)="toggleConfigSidebar()"></div>
 </div>

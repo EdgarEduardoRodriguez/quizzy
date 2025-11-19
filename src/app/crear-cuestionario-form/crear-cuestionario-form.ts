@@ -39,6 +39,15 @@ export class CrearCuestionarioForm {
   // propiedad para mostrar/ocultar el dropdown personalizado
   showDropdown: boolean = false;
 
+  // para sidebar derecho de configuracion de pregunta
+  showConfigSidebar: boolean = false;
+
+  toggleConfigSidebar() {
+    console.log('toggleConfigSidebar called, current state:', this.showConfigSidebar);
+    this.showConfigSidebar = !this.showConfigSidebar;
+    console.log('New state:', this.showConfigSidebar);
+  }
+
   volverHome() {
     this.router.navigate(['/home']);
   }

@@ -170,11 +170,11 @@
 
 .sidebar-base {
   position: absolute;
-  top: 70px;
+  top: 87px;
   left: 0;
   height: calc(100vh - 70px);
   background-color: #4caf50;
-  border-top-right-radius: 20px;
+
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   z-index: 999;
 }
@@ -679,4 +679,92 @@
 
 .add-question-btn i {
   font-size: 1.4rem;
+}
+
+/* sidebar derecho de configuracion de preguntas */
+
+.config-sidebar {
+  position: fixed;
+  top: 87px; /* Más espacio para evitar interferir con el navbar */
+  right: 0;
+  width: 550px;
+  height: auto; /* Ajustar altura para compensar el top mayor */
+  background-color: #4caf50;
+  border-top-left-radius: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1100;
+  transform: translateX(100%); /* Oculto fuera de la pantalla */
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); /* Solo animar el deslizamiento */
+  pointer-events: none; /* Deshabilitar eventos del mouse cuando está cerrado */
+}
+
+.config-sidebar.open {
+  transform: translateX(0); /* Visible en pantalla */
+  pointer-events: auto; /* Habilitar eventos del mouse cuando está abierto */
+  opacity: 1; /* Visible cuando abierto */
+}
+
+.config-sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  background-color: #4caf50;
+}
+
+.config-sidebar-title {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: white;
+}
+
+.config-sidebar-title i {
+  color: white;
+}
+
+.config-sidebar-close {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: background 0.2s;
+  color: white;
+}
+
+.config-sidebar-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.config-sidebar-close i {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.config-sidebar-content {
+  padding: 2rem;
+  height: calc(100vh - 80px);
+  overflow-y: auto;
+}
+
+/* Overlay para el sidebar (transparente pero funcional para cerrar) */
+.config-sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: transparent; /* Sin fondo oscuro */
+  opacity: 1;
+  visibility: hidden; /* Solo visible cuando está activo */
+  transition: visibility 0.3s ease;
+  z-index: 1050;
+}
+
+.config-sidebar-overlay.active {
+  visibility: visible; /* Se hace visible para capturar clicks */
 }
