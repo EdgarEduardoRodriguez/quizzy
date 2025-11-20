@@ -768,3 +768,114 @@
 .config-sidebar-overlay.active {
   visibility: visible; /* Se hace visible para capturar clicks */
 }
+
+/* Estilos para la opcion de configuracion */
+.config-option {
+  margin-bottom: -1rem;
+}
+
+.toggle-button {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+  color: white;
+}
+
+.toggle-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.toggle-icon {
+  font-size: 1.5rem;
+  transition: color 0.2s ease;
+  margin-left: 1rem; /* Empuja el ícono completamente a la derecha */
+}
+
+.toggle-on {
+  color: #fff; /* Blanco cuando activado */
+}
+
+.toggle-off {
+  color: #888; /* Gris oscuro cuando desactivado */
+}
+
+.toggle-text {
+  font-size: 1rem;
+  font-weight: 500;
+  margin: -0.5rem;
+}
+
+.option-description {
+  margin: 0.5rem 0 0 0; /* Sin indentación, alineado con el texto principal */
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* Estilos para la configuración de máximo de opciones */
+.max-options-config {
+  margin-top: 1rem;
+  padding: 1rem;
+}
+
+.max-options-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.max-options-text {
+  margin: 0.5rem 0 0 -1rem; /* Indentación a la derecha */
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.max-options-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.control-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.3rem;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.control-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.control-btn i {
+  font-size: 1.2rem;
+}
+
+.max-options-number {
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: bold;
+  min-width: 30px;
+  text-align: center;
+}
+
+.max-options-label {
+  color: #fff;
+  font-size: 0.9rem;
+  margin-left: 0.3rem;
+}

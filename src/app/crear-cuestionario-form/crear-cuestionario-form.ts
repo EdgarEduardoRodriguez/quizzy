@@ -42,10 +42,36 @@ export class CrearCuestionarioForm {
   // para sidebar derecho de configuracion de pregunta
   showConfigSidebar: boolean = false;
 
+  //propiedad para controlar si se permiten varias opciones seleccionadas
+  allowMultipleOptions: boolean = false;
+
+  //propiedad para el numero maximo de opciones seleccionables
+  maxSelectableOptions: number = 2;
+
   toggleConfigSidebar() {
     console.log('toggleConfigSidebar called, current state:', this.showConfigSidebar);
     this.showConfigSidebar = !this.showConfigSidebar;
     console.log('New state:', this.showConfigSidebar);
+  }
+
+  // metodo para alternar la opcion de varias opciones
+  toggleMultipleOptions() {
+    this.allowMultipleOptions = !this.allowMultipleOptions;
+    console.log('Varias opciones:', this.allowMultipleOptions ? 'activado' : 'desactivado');
+  }
+
+  // metodo para aumentar el numero maximo de opciones
+  increaseMaxOptions() {
+    if (this.maxSelectableOptions < this.options.length) {
+      this.maxSelectableOptions++;
+    }
+  }
+
+  // metodo para disminuir el numero maximo de opciones
+  decreaseMaxOptions() {
+    if (this.maxSelectableOptions > 1) {
+      this.maxSelectableOptions--;
+    }
   }
 
   volverHome() {

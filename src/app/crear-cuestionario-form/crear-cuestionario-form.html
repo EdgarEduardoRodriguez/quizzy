@@ -157,7 +157,34 @@
             </div>
         </div>
         <div class="config-sidebar-content">
-            <!-- aqui ira el contenido de configuracion -->
+            <div class="config-option">
+                <button class="toggle-button" (click)="toggleMultipleOptions()">
+                    <span class="toggle-text">Varias opciones</span>
+                    <i class="material-icons toggle-icon" [ngClass]="{'toggle-on': allowMultipleOptions, 'toggle-off': !allowMultipleOptions}">
+                        {{ allowMultipleOptions ? 'toggle_on' : 'toggle_off' }}
+                    </i>
+                </button>
+                <p class="option-description">
+                    Los participantes pueden seleccionar más de una opción
+                </p>
+            </div>
+            <!-- Sección adicional cuando varias opciones está activado -->
+            <div *ngIf="allowMultipleOptions" class="max-options-config">
+                <div class="max-options-row">
+                    <span class="max-options-text">
+                        Los participantes pueden seleccionar hasta:
+                    </span>
+                    <div class="max-options-controls">
+                        <button class="control-btn" (click)="decreaseMaxOptions()">
+                            <i class="material-icons">do_not_disturb_on</i>
+                        </button>
+                        <span class="max-options-number">{{ maxSelectableOptions }}</span>
+                        <button class="control-btn" (click)="increaseMaxOptions()">
+                            <i class="material-icons">add_circle</i>
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     <!-- overlay para cerrar el sidebar haciendo click afuera -->
