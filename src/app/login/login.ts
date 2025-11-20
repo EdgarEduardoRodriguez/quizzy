@@ -34,7 +34,7 @@ export class Login {
         next: (response) => {
           console.log('Login exitoso:', response);
           alert('¡Inicio de sesión exitoso! Bienvenido de vuelta a Quizzy.');
-          this.router.navigate(['/home']);
+          this.router.navigate(['/crear-cuestionario']);
         },
         error: (error) => {
           console.error('Error en login:', error);
