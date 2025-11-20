@@ -1,0 +1,45 @@
+<div class="registro-container">
+  <!-- Lado izquierdo (participante) -->
+  <div class="registro-left">
+    <div class="registro-content-wrapper">
+      <h1>¿Unirse como participante?</h1>
+      <p>No se necesita cuenta.</p>
+      <div class="code-input">
+        <div class="code-wrapper">
+          <input type="text" placeholder="# Introduce el código Quizzy" [(ngModel)]="codigoQuiz" />
+        <button (click)="onUnirseParticipante()"><i class="material-icons">arrow_forward</i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lado derecho (host) -->
+  <div class="registro-right">
+    <div class="registro-content-wrapper">
+      <div class="logo">Quizzy</div>
+      <h2>Regístrate<br>como anfitrión de quiz</h2>
+      <p class="subtitle">o inicia sesión en tu cuenta</p>
+
+      <div class="social-btn" (click)="onRegistroWebex()">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Microsoft_Webex_Logo.png" alt="Webex" width="20">
+        Registrarse con Webex
+      </div>
+      <div class="social-btn" (click)="onRegistroGoogle()">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Google_%22G%22_Logo.svg" alt="Google" width="20">
+        Registrarse con Google
+      </div>
+
+      <div class="or">o</div>
+
+      <form class="registro-form" (ngSubmit)="onRegistroSubmit()">
+        <input type="text" class="form-input half" placeholder="Nombre *" [(ngModel)]="registroForm.nombre" name="nombre" required />
+        <input type="text" class="form-input half" placeholder="Apellidos *" [(ngModel)]="registroForm.apellidos" name="apellidos" required />
+        <input type="email" class="form-input" placeholder="Correo electrónico laboral *" [(ngModel)]="registroForm.email" name="email" required />
+        <input type="password" class="form-input" placeholder="Contraseña *" [(ngModel)]="registroForm.password" name="password" required />
+        <button type="submit" class="submit-btn">Crear cuenta</button>
+      </form>
+
+      <div class="terms">
+        Al registrarte aceptas nuestros <a href="#">Términos y Condiciones</a>
+      </div>
+    </div>

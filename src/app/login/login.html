@@ -1,0 +1,59 @@
+<div class="login-container">
+  <!-- Lado izquierdo (bienvenida) -->
+  <div class="login-left">
+    <div class="login-content-wrapper">
+      <h1>¡Bienvenido de vuelta!</h1>
+      <p>Inicia sesión para continuar creando y gestionando tus cuestionarios.</p>
+      <div class="login-features">
+        <div class="feature-item">
+          <i class="material-icons">check_circle</i>
+          <span>Accede a tus cuestionarios</span>
+        </div>
+        <div class="feature-item">
+          <i class="material-icons">check_circle</i>
+          <span>Gestiona tus resultados</span>
+        </div>
+        <div class="feature-item">
+          <i class="material-icons">check_circle</i>
+          <span>Crea nuevos quizzes</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lado derecho (formulario) -->
+  <div class="login-right">
+    <div class="login-content-wrapper">
+      <div class="logo">Quizzy</div>
+      <h2>Iniciar Sesión</h2>
+      <p class="subtitle">Ingresa tus credenciales para continuar</p>
+
+      <div class="social-btn" (click)="onLoginGoogle()">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Google_%22G%22_Logo.svg" alt="Google" width="20">
+        Continuar con Google
+      </div>
+
+      <div class="or">o</div>
+
+      <form class="login-form" (ngSubmit)="onLoginSubmit()">
+        <input type="email" class="form-input" placeholder="Correo electrónico *" [(ngModel)]="loginForm.email" name="email" required />
+        <input type="password" class="form-input" placeholder="Contraseña *" [(ngModel)]="loginForm.password" name="password" required />
+
+        <div class="form-options">
+          <label class="checkbox-container">
+            <input type="checkbox" [(ngModel)]="rememberMe" name="rememberMe">
+            <span class="checkmark"></span>
+            Recordarme
+          </label>
+          <a href="#" class="forgot-password">¿Olvidaste tu contraseña?</a>
+        </div>
+
+        <button type="submit" class="submit-btn">Iniciar Sesión</button>
+      </form>
+
+      <div class="register-link">
+        ¿No tienes cuenta? <a href="javascript:void(0)" (click)="goToRegistro()">Regístrate aquí</a>
+      </div>
+    </div>
+  </div>
+</div>

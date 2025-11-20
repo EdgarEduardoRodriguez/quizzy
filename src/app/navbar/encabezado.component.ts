@@ -24,11 +24,15 @@ export class Encabezado {
       return;
     }
 
-    const mensajes: { [key: string]: string } = {
-      'login': 'Iniciar Sesión',
-      'registro': 'Registrarse'
-    };
-    alert(`Hiciste click en: ${mensajes[item]}`);
+    if (item === 'registro') {
+      this.router.navigate(['/registro']);
+      return;
+    }
+
+    if (item === 'login') {
+      this.router.navigate(['/login']);
+      return;
+    }
   }
 
   // metodo para verificar si estamos en la pagina de crear cuestionario

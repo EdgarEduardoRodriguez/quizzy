@@ -102,6 +102,20 @@
                         [(ngModel)]="questionText"
                         autofocus>
 
+                    <!-- campo de descripcion de la pregunta -->
+                     <div *ngIf="showQuestionDescription" class="question-description-container">
+                        <textarea
+                            class="question-description-input"
+                            placeholder="Escribe una descripción adicional para la pregunta..."
+                            [(ngModel)]="questionDescription"
+                            rows="3"></textarea>
+                     </div>
+                    <!-- mensaje cuando selecciona la respuesta correcta -->
+                     <div *ngIf="showCorrectAnswer && !hasCorrectAnswers" class="correct-answer-info">
+                        <i class="material-icons">info</i>
+                        <p>No olvide marcar la respuesta correcta</p>
+                     </div>
+
                     <!-- Formulario para opción múltiple -->
                     <div *ngIf="selectedQuestionType === 'multiple'">
                         <div class="options-list">
@@ -111,6 +125,16 @@
                                     class="option-input"
                                     [placeholder]="'Opción ' + (i + 1)"
                                     [(ngModel)]="option.text">
+                                    
+                                <!-- icono de respuesta correcta -->
+                                 <span
+                                    *ngIf="showCorrectAnswer"
+                                    class="material-icons correct-answer-icon"
+                                    [class.correct-selected]="option.isCorrect"
+                                    (click)="toggleCorrectOption(i)">
+                                    check_circle_outline
+                                 </span>
+                                 
                                 <span class="material-icons delete-option" (click)="removeOption(i)">close</span>
                             </div>
                         </div>
@@ -193,6 +217,16 @@
                 </button>
                 <p class="option-description">
                     Seleccione y muestre la respuesta correcta para los participantes
+                </p>
+
+                <button class="toggle-button" (click)="toggleQuestionDescription()">
+                    <span class="toggle-text"> Descripción  de la pregunta</span>
+                    <i class="material-icons toggle-icon" [ngClass]="{'toggle-on': showQuestionDescription, 'toggle-off': !showQuestionDescription}">
+                        {{ showQuestionDescription ? 'toggle_on' : 'toggle_off'}}
+                    </i>
+                </button>
+                <p class="option-description">
+                    Agregar una descripción visible para los participantes
                 </p>
             </div>
         </div>
