@@ -48,6 +48,9 @@ export class CrearCuestionarioForm {
   //propiedad para el numero maximo de opciones seleccionables
   maxSelectableOptions: number = 2;
 
+  // propiedad para mostrar/ocultar la respuesta correcta
+  showCorrectAnswer: boolean = false;
+
   toggleConfigSidebar() {
     console.log('toggleConfigSidebar called, current state:', this.showConfigSidebar);
     this.showConfigSidebar = !this.showConfigSidebar;
@@ -58,6 +61,12 @@ export class CrearCuestionarioForm {
   toggleMultipleOptions() {
     this.allowMultipleOptions = !this.allowMultipleOptions;
     console.log('Varias opciones:', this.allowMultipleOptions ? 'activado' : 'desactivado');
+  }
+
+  // metodo para alternar la opcion de mostrar respuesta correcta
+  toggleCorrectAnswer() {
+    this.showCorrectAnswer = !this.showCorrectAnswer;
+    console.log('Mostrar respuesta correcta:', this.showCorrectAnswer ? 'activado' : 'desactivado');
   }
 
   // metodo para aumentar el numero maximo de opciones
