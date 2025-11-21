@@ -21,7 +21,7 @@
         <span class="icono">📝</span>
         Registrarse
       </button>
-      <button class="crear-cuestionario-btn" (click)="onCrearCuestionario()" *ngIf="isCrearCuestionarioPage()">
+      <button class="crear-cuestionario-btn" (click)="onCrearCuestionario()" *ngIf="isLoggedIn">
         <span class="icono-plus">➕</span>
         Crear Cuestionario
       </button>
@@ -50,5 +50,28 @@
         </div>
       </div>
     </nav>
+  </div>
+
+  <!-- Modal para crear cuestionario desde navbar -->
+  <div id="navbarCreateModal" class="modal" [class.show]="showCreateModal">
+    <div class="modal-overlay" (click)="cerrarCreateModal()"></div>
+    <div class="modal-content">
+      <h2>¿Cómo deseas llamar a este cuestionario?</h2>
+
+      <div class="form-group">
+        <label>Asignar un nombre a su cuestionario</label>
+        <input type="text" [(ngModel)]="quizName" placeholder="Nombre del Cuestionario" required (keydown.enter)="crearCuestionarioDesdeNavbar()">
+      </div>
+
+      <div class="info-box">
+        <i class="material-icons">info</i>
+        Cualquier persona con el código o enlace podrá participar
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="cerrarCreateModal()">Cancelar</button>
+        <button class="btn-create" (click)="crearCuestionarioDesdeNavbar()">Crear cuestionario</button>
+      </div>
+    </div>
   </div>
 </header>

@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { QuestionnaireService } from '../services/questionnaire.service';
 
 @Component({
   selector: 'app-crear-cuestionario-form',
@@ -9,8 +10,28 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './crear-cuestionario-form.html',
   styleUrl: './crear-cuestionario-form.css'
 })
-export class CrearCuestionarioForm {
-  constructor(private router: Router) {}
+export class CrearCuestionarioForm implements OnInit {
+  constructor(private router: Router, private questionnaireService: QuestionnaireService) {}
+
+  // Propiedad para almacenar los cuestionarios
+  questionnaires: any[] = [];
+
+  // Propiedades para edición
+  isEditing: boolean = false;
+  editingQuestionnaireId: number | null = null;
+
+  ngOnInit() {
+    this.loadQuestionnaires();
+  }
+
+  // Detectar clicks fuera del menú para cerrarlo
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event) {
+    // Cerrar todos los menús si se hace click fuera
+    this.questionnaires.forEach(q => {
+      q.showMenu = false;
+    });
+  }
 
   // propiedad para controlar si el sidebar esta colapsado
   isSidebarCollapsed: boolean = false;
@@ -114,7 +135,7 @@ export class CrearCuestionarioForm {
   }
 
   onAgregarPregunta() {
-    this.currentView = 'form';
+    this.currentView = 'options';
     this.animateCards = true;
   }
 
@@ -219,4 +240,189 @@ export class CrearCuestionarioForm {
     }
   }
 
+  // Método para cargar cuestionarios
+  loadQuestionnaires() {
+    this.questionnaireService.getQuestionnaires().subscribe({
+      next: (data) => {
+        this.questionnaires = data;
+      },
+      error: (error) => {
+        console.error('Error loading questionnaires:', error);
+      }
+    });
+  }
+
+  // Método para guardar cuestionario
+  saveQuestionnaire() {
+    if (!this.questionText.trim()) {
+      alert('Por favor ingresa el texto de la pregunta');
+      return;
+    }
+
+    // Filtrar opciones que tienen texto y mapear isCorrect a is_correct
+    const validOptions = this.options
+      .filter(opt => opt.text.trim())
+      .map(opt => ({
+        text: opt.text,
+        is_correct: opt.isCorrect
+      }));
+
+    if (validOptions.length < 2) {
+      alert('Por favor agrega al menos 2 opciones');
+      return;
+    }
+
+    const questionnaireData = {
+      title: this.questionText, // Usar el texto de la pregunta como título del cuestionario
+      description: this.questionDescription,
+      questions: [{
+        text: this.questionText,
+        description: this.questionDescription,
+        type: this.selectedQuestionType,
+        allow_multiple: this.allowMultipleOptions,
+        max_options: this.maxSelectableOptions,
+        options: validOptions
+      }]
+    };
+
+    console.log('Enviando datos del cuestionario:', questionnaireData);
+
+    if (this.isEditing && this.editingQuestionnaireId) {
+      // Si estamos editando, eliminar el cuestionario anterior y crear uno nuevo
+      this.questionnaireService.deleteQuestionnaire(this.editingQuestionnaireId).subscribe({
+        next: () => {
+          // Después de eliminar, crear el nuevo
+          this.createNewQuestionnaire(questionnaireData);
+        },
+        error: (error) => {
+          console.error('Error deleting old questionnaire:', error);
+          alert('Error al actualizar el cuestionario');
+        }
+      });
+    } else {
+      // Crear nuevo cuestionario
+      this.createNewQuestionnaire(questionnaireData);
+    }
+  }
+
+  // Método auxiliar para crear un nuevo cuestionario
+  createNewQuestionnaire(questionnaireData: any) {
+    this.questionnaireService.createQuestionnaire(questionnaireData).subscribe({
+      next: (response) => {
+        const message = this.isEditing ? 'Cuestionario actualizado exitosamente' : 'Cuestionario guardado exitosamente';
+        alert(message);
+        this.loadQuestionnaires(); // Recargar la lista
+        this.resetForm();
+        this.isEditing = false;
+        this.editingQuestionnaireId = null;
+      },
+      error: (error) => {
+        console.error('Error saving questionnaire:', error);
+        alert('Error al guardar el cuestionario');
+      }
+    });
+  }
+
+  // Método para resetear el formulario
+  resetForm() {
+    this.questionText = '';
+    this.questionDescription = '';
+    this.options = [
+      { text: '', isCorrect: false },
+      { text: '', isCorrect: false },
+      { text: '', isCorrect: false },
+      { text: '', isCorrect: false }
+    ];
+    this.currentView = 'options';
+  }
+
+  // Método para mostrar/ocultar el menú de opciones
+  toggleMenu(event: Event, questionnaire: any) {
+    event.stopPropagation(); // Evitar que se propague el click
+
+    // Cerrar otros menús abiertos
+    this.questionnaires.forEach(q => {
+      if (q !== questionnaire) {
+        q.showMenu = false;
+      }
+    });
+
+    // Toggle el menú del cuestionario actual
+    questionnaire.showMenu = !questionnaire.showMenu;
+  }
+
+  // Método para duplicar un cuestionario
+  duplicateQuestionnaire(questionnaire: any) {
+    // Cerrar el menú
+    questionnaire.showMenu = false;
+
+    // Cargar los datos del cuestionario para duplicar
+    this.questionnaireService.getQuestionnaire(questionnaire.id).subscribe({
+      next: (data) => {
+        // Crear una copia con título modificado
+        const duplicatedData = {
+          ...data,
+          title: `${data.title} (Copia)`
+        };
+
+        // Crear el cuestionario duplicado
+        this.questionnaireService.createQuestionnaire(duplicatedData).subscribe({
+          next: (response) => {
+            alert('Cuestionario duplicado exitosamente');
+            this.loadQuestionnaires(); // Recargar la lista
+          },
+          error: (error) => {
+            console.error('Error duplicating questionnaire:', error);
+            alert('Error al duplicar el cuestionario');
+          }
+        });
+      },
+      error: (error) => {
+        console.error('Error loading questionnaire for duplication:', error);
+        alert('Error al cargar el cuestionario para duplicar');
+      }
+    });
+  }
+
+  // Método para poblar el formulario con datos de un cuestionario existente
+  populateFormWithQuestionnaire(questionnaire: any) {
+    if (questionnaire.questions && questionnaire.questions.length > 0) {
+      const question = questionnaire.questions[0]; // Tomar la primera pregunta
+
+      this.questionText = question.text;
+      this.questionDescription = question.description || '';
+      this.selectedQuestionType = question.question_type;
+      this.allowMultipleOptions = question.allow_multiple;
+      this.maxSelectableOptions = question.max_options;
+      this.showCorrectAnswer = question.options.some((opt: any) => opt.is_correct);
+      this.showQuestionDescription = !!question.description;
+
+      // Poblar las opciones
+      this.options = question.options.map((opt: any) => ({
+        text: opt.text,
+        isCorrect: opt.is_correct
+      }));
+
+      // Asegurar que haya al menos 4 opciones
+      while (this.options.length < 4) {
+        this.options.push({ text: '', isCorrect: false });
+      }
+    }
+  }
+
+  // Método para eliminar un cuestionario
+  deleteQuestionnaire(questionnaire: any) {
+    if (confirm(`¿Estás seguro de que quieres eliminar el cuestionario "${questionnaire.title}"?`)) {
+      this.questionnaireService.deleteQuestionnaire(questionnaire.id).subscribe({
+        next: (response) => {
+          alert('Cuestionario eliminado exitosamente');
+          this.loadQuestionnaires(); // Recargar la lista
+        },
+        error: (error) => {
+          console.error('Error deleting questionnaire:', error);
+          alert('Error al eliminar el cuestionario');
+        }
+      });
+    }
+  }
 }

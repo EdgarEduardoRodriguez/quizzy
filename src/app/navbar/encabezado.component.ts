@@ -1,11 +1,12 @@
 import { Component, OnInit, HostListener } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-encabezado',
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './encabezado.component.html',
   styleUrl: './encabezado.component.css'
 })
@@ -18,6 +19,10 @@ export class Encabezado implements OnInit {
   userName: string = '';
   userEmail: string = '';
   showDropdown: boolean = false;
+
+  // Propiedades para el modal de crear cuestionario
+  showCreateModal: boolean = false;
+  quizName: string = '';
 
   constructor(private router: Router, private location: Location) {}
 
@@ -69,7 +74,8 @@ export class Encabezado implements OnInit {
   }
 
   onCrearCuestionario() {
-    this.router.navigate(['/crear-cuestionario-form']);
+    this.showCreateModal = true;
+    this.quizName = '';
   }
 
   goBack() {
@@ -124,5 +130,22 @@ export class Encabezado implements OnInit {
     this.userEmail = '';
     this.showDropdown = false;
     this.router.navigate(['/home']);
+  }
+
+  // Métodos para el modal de crear cuestionario
+  cerrarCreateModal() {
+    this.showCreateModal = false;
+    this.quizName = '';
+  }
+
+  crearCuestionarioDesdeNavbar() {
+    if (this.quizName.trim()) {
+      console.log('Creando cuestionario desde navbar:', this.quizName);
+      alert(`¡Cuestionario "${this.quizName}" creado exitosamente!`);
+      this.cerrarCreateModal();
+      this.router.navigate(['/crear-cuestionario-form']);
+    } else {
+      alert('Por favor, ingresa un nombre para el cuestionario.');
+    }
   }
 }

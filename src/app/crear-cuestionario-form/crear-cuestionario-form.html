@@ -11,6 +11,25 @@
             <span class="sidebar-text" [class.sidebar-text-visible]="!isSidebarCollapsed" [class.sidebar-text-hidden]="isSidebarCollapsed">Agregar pregunta</span>
         </div>
         <div class="sidebar-title" *ngIf="!isSidebarCollapsed">Mis preguntas</div>
+        <div class="sidebar-item" *ngFor="let questionnaire of questionnaires">
+            <i class="material-icons sidebar-icon" [class.sidebar-icon-expanded]="!isSidebarCollapsed" [class.sidebar-icon-collapsed]="isSidebarCollapsed">assignment</i>
+            <span class="sidebar-text" [class.sidebar-text-visible]="!isSidebarCollapsed" [class.sidebar-text-hidden]="isSidebarCollapsed">
+                {{ questionnaire.title }}
+            </span>
+            <div class="sidebar-menu-container" *ngIf="!isSidebarCollapsed">
+                <i class="material-icons sidebar-menu-icon" (click)="toggleMenu($event, questionnaire)">more_vert</i>
+                <div class="sidebar-dropdown" [class.show]="questionnaire.showMenu">
+                    <div class="sidebar-dropdown-item" (click)="duplicateQuestionnaire(questionnaire)">
+                        <i class="material-icons">content_copy</i>
+                        <span>Duplicar</span>
+                    </div>
+                    <div class="sidebar-dropdown-item delete-item" (click)="deleteQuestionnaire(questionnaire)">
+                        <i class="material-icons">delete_outline</i>
+                        <span>Eliminar</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -84,8 +103,9 @@
                         </div>
                     </div>
                     <div class="header-actions">
+                        <button class="save-btn" (click)="saveQuestionnaire()">Guardar Cuestionario</button>
                         <div class="delete-icon" (click)="deleteQuestion()">
-                            <i class="material-icons">delete</i>
+                            <i class="material-icons">delete_outline</i>
                         </div>
                         <div class="config-icon" (click)="toggleConfigSidebar(); $event.stopPropagation()">
                             <i class="material-icons">settings</i>

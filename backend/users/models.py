@@ -36,3 +36,37 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
+
+class Questionnaire(models.Model):
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+class Question(models.Model):
+    QUESTION_TYPES = [
+        ('multiple', 'Opción múltiple'),
+        ('abierta', 'Pregunta abierta'),
+        ('cuestionario', 'Cuestionario'),
+    ]
+
+    questionnaire = models.ForeignKey(Questionnaire, on_delete=models.CASCADE, related_name='questions')
+    text = models.TextField()
+    description = models.TextField(blank=True)
+    question_type = models.CharField(max_length=20, choices=QUESTION_TYPES)
+    allow_multiple = models.BooleanField(default=False)
+    max_options = models.IntegerField(default=1)
+
+    def __str__(self):
+        return self.text[:50]
+
+class Option(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='options')
+    text = models.CharField(max_length=200)
+    is_correct = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.text
