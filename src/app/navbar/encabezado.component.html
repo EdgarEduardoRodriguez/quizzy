@@ -25,6 +25,30 @@
         <span class="icono-plus">➕</span>
         Crear Cuestionario
       </button>
+
+      <!-- Botón de perfil del usuario -->
+      <div class="profile-container" *ngIf="isLoggedIn">
+        <div class="profile-button" (click)="toggleDropdown()" title="Menú de usuario">
+          <div class="profile-avatar">
+            {{ userInitials }}
+          </div>
+        </div>
+
+        <!-- Dropdown menu -->
+        <div class="profile-dropdown" *ngIf="showDropdown">
+          <div class="dropdown-header">
+            <div class="user-info">
+              <div class="user-name">{{ userName }}</div>
+              <div class="user-email">{{ userEmail }}</div>
+            </div>
+          </div>
+          <div class="dropdown-divider"></div>
+          <button class="dropdown-item" (click)="logout()">
+            <i class="material-icons">logout</i>
+            <span>Cerrar sesión</span>
+          </button>
+        </div>
+      </div>
     </nav>
   </div>
 </header>

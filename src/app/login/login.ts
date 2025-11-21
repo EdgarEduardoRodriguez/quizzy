@@ -33,6 +33,8 @@ export class Login {
       this.userService.login(credentials).subscribe({
         next: (response) => {
           console.log('Login exitoso:', response);
+          // Guardar datos del usuario en localStorage
+          localStorage.setItem('currentUser', JSON.stringify(response.user));
           alert('¡Inicio de sesión exitoso! Bienvenido de vuelta a Quizzy.');
           this.router.navigate(['/crear-cuestionario']);
         },
