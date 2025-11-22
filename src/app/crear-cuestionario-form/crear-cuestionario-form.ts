@@ -1,5 +1,5 @@
 import { Component, OnInit, HostListener } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { QuestionnaireService } from '../services/questionnaire.service';
@@ -11,29 +11,24 @@ import { QuestionnaireService } from '../services/questionnaire.service';
   styleUrl: './crear-cuestionario-form.css'
 })
 export class CrearCuestionarioForm implements OnInit {
-  constructor(private router: Router, private questionnaireService: QuestionnaireService) {}
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private questionnaireService: QuestionnaireService
+  ) {}
 
-  // Propiedad para almacenar los cuestionarios
-  questionnaires: any[] = [];
+  // Propiedades del cuestionario actual
+  currentQuestionnaireId: number | null = null;
+  currentQuestionnaireName: string = '';
 
-  // Propiedades para edición
+  // Propiedad para almacenar las preguntas del cuestionario actual
+  questions: any[] = [];
+
+  // Propiedad para controlar si estamos editando una pregunta existente
   isEditing: boolean = false;
-  editingQuestionnaireId: number | null = null;
+  editingQuestionId: number | null = null;
 
-  ngOnInit() {
-    this.loadQuestionnaires();
-  }
-
-  // Detectar clicks fuera del menú para cerrarlo
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: Event) {
-    // Cerrar todos los menús si se hace click fuera
-    this.questionnaires.forEach(q => {
-      q.showMenu = false;
-    });
-  }
-
-  // propiedad para controlar si el sidebar esta colapsado
+  // Propiedad para controlar si el sidebar esta colapsado
   isSidebarCollapsed: boolean = false;
 
   // propiedad para animar las tarjetas de opciones
@@ -83,42 +78,47 @@ export class CrearCuestionarioForm implements OnInit {
     return this.options.some(option => option.isCorrect);
   }
 
-  toggleConfigSidebar() {
-    console.log('toggleConfigSidebar called, current state:', this.showConfigSidebar);
-    this.showConfigSidebar = !this.showConfigSidebar;
-    console.log('New state:', this.showConfigSidebar);
+  // propiedades para el formualrio de opcion multilpe
+  questionText: string = '';
+  options: { text: string, isCorrect: boolean }[] = [
+    { text: '', isCorrect: false},
+    { text: '', isCorrect: false},
+    { text: '', isCorrect: false},
+    { text: '', isCorrect: false}
+  ];
+
+  ngOnInit() {
+    // Obtener el ID y nombre del cuestionario desde los query params
+    this.route.queryParams.subscribe(params => {
+      this.currentQuestionnaireId = params['id'] ? parseInt(params['id']) : null;
+      this.currentQuestionnaireName = params['nombre'] || '';
+
+      if (this.currentQuestionnaireId) {
+        this.loadQuestionsForQuestionnaire(this.currentQuestionnaireId);
+      }
+    });
   }
 
-  // metodo para alternar la opcion de varias opciones
-  toggleMultipleOptions() {
-    this.allowMultipleOptions = !this.allowMultipleOptions;
-    console.log('Varias opciones:', this.allowMultipleOptions ? 'activado' : 'desactivado');
+  // Método para cargar las preguntas de un cuestionario específico
+  loadQuestionsForQuestionnaire(questionnaireId: number) {
+    this.questionnaireService.getQuestionnaire(questionnaireId).subscribe({
+      next: (questionnaire) => {
+        this.questions = questionnaire.questions || [];
+        console.log('Preguntas cargadas:', this.questions);
+      },
+      error: (error) => {
+        console.error('Error loading questions:', error);
+      }
+    });
   }
 
-  // metodo para alternar la opcion de mostrar respuesta correcta
-  toggleCorrectAnswer() {
-    this.showCorrectAnswer = !this.showCorrectAnswer;
-    console.log('Mostrar respuesta correcta:', this.showCorrectAnswer ? 'activado' : 'desactivado');
-  }
-
-  //metodo para alternar la opcion de mostrar la descripcion de la pregunta
-  toggleQuestionDescription() {
-    this.showQuestionDescription = !this.showQuestionDescription;
-    console.log('Mostrar descripcion de la pregunta:', this.showQuestionDescription ? 'activado' : 'desactivado');
-  }
-
-  // metodo para aumentar el numero maximo de opciones
-  increaseMaxOptions() {
-    if (this.maxSelectableOptions < this.options.length) {
-      this.maxSelectableOptions++;
-    }
-  }
-
-  // metodo para disminuir el numero maximo de opciones
-  decreaseMaxOptions() {
-    if (this.maxSelectableOptions > 1) {
-      this.maxSelectableOptions--;
-    }
+  // Detectar clicks fuera del menú para cerrarlo
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event) {
+    // Cerrar todos los menús si se hace click fuera
+    this.questions.forEach(q => {
+      q.showMenu = false;
+    });
   }
 
   volverHome() {
@@ -130,31 +130,28 @@ export class CrearCuestionarioForm implements OnInit {
     this.isSidebarCollapsed = !this.isSidebarCollapsed;
   }
 
-  onMisInteracciones() {
-    
-  }
-
   onAgregarPregunta() {
     this.currentView = 'options';
     this.animateCards = true;
   }
 
   seleccionarTipo(tipo: string) {
-    if (tipo === 'multiple') {
+    if (tipo === 'multiple' || tipo === 'abierta') {
+      this.selectedQuestionType = tipo;
+
+      // Resetea las opciones cuando cambia de tipo de pregunta
+      if (tipo === 'abierta') {
+        // For open text questions, disable multiple choice specific options
+        this.allowMultipleOptions = false;
+        this.showCorrectAnswer = false;
+        this.maxSelectableOptions = 2;
+      }
+
       this.currentView = 'form';
     } else {
       alert(`Seleccionaste: ${tipo}`);
     }
   }
-
-  // propiedades para el formualrio de opcion multilpe
-  questionText: string = '';
-  options: { text: string, isCorrect: boolean }[] = [
-    { text: '', isCorrect: false},
-    { text: '', isCorrect: false},
-    { text: '', isCorrect: false},
-    { text: '', isCorrect: false}
-  ];
 
   // metodo para agregar opcion
   addOption() {
@@ -202,23 +199,6 @@ export class CrearCuestionarioForm implements OnInit {
     console.log('Tipo de pregunta cambiado a:', this.selectedQuestionType);
   }
 
-  // metodo para cambiar el tipo de pregunta desde el select HTML
-  changeQuestionType(event: any) {
-    const newType = event.target.value;
-    this.selectedQuestionType = newType;
-
-    // Reset form data when changing type
-    this.questionText = '';
-    this.options = [
-      { text: '', isCorrect: false },
-      { text: '', isCorrect: false },
-      { text: '', isCorrect: false },
-      { text: '', isCorrect: false }
-    ];
-
-    console.log('Tipo de pregunta cambiado a:', this.selectedQuestionType);
-  }
-
   // metodo para eliminar la pregunta actual
   deleteQuestion() {
     if (confirm('¿Estás seguro de que quieres eliminar esta pregunta?')) {
@@ -240,87 +220,78 @@ export class CrearCuestionarioForm implements OnInit {
     }
   }
 
-  // Método para cargar cuestionarios
-  loadQuestionnaires() {
-    this.questionnaireService.getQuestionnaires().subscribe({
-      next: (data) => {
-        this.questionnaires = data;
-      },
-      error: (error) => {
-        console.error('Error loading questionnaires:', error);
-      }
-    });
-  }
-
-  // Método para guardar cuestionario
+  // Método para guardar pregunta en el cuestionario actual
   saveQuestionnaire() {
     if (!this.questionText.trim()) {
       alert('Por favor ingresa el texto de la pregunta');
       return;
     }
 
-    // Filtrar opciones que tienen texto y mapear isCorrect a is_correct
-    const validOptions = this.options
-      .filter(opt => opt.text.trim())
-      .map(opt => ({
-        text: opt.text,
-        is_correct: opt.isCorrect
-      }));
-
-    if (validOptions.length < 2) {
-      alert('Por favor agrega al menos 2 opciones');
+    if (!this.currentQuestionnaireId) {
+      alert('Error: No se encontró el cuestionario actual');
       return;
     }
 
-    const questionnaireData = {
-      title: this.questionText, // Usar el texto de la pregunta como título del cuestionario
+    let questionData: any = {
+      text: this.questionText,
       description: this.questionDescription,
-      questions: [{
-        text: this.questionText,
-        description: this.questionDescription,
-        type: this.selectedQuestionType,
-        allow_multiple: this.allowMultipleOptions,
-        max_options: this.maxSelectableOptions,
-        options: validOptions
-      }]
+      question_type: this.selectedQuestionType,
+      allow_multiple: this.allowMultipleOptions,
+      max_options: this.maxSelectableOptions
     };
 
-    console.log('Enviando datos del cuestionario:', questionnaireData);
+    // Manejar diferentes tipos de pregunta
+    if (this.selectedQuestionType === 'multiple') {
+      // Para preguntas múltiples, validar y procesar opciones
+      const validOptions = this.options
+        .filter(opt => opt.text.trim())
+        .map(opt => ({
+          text: opt.text,
+          is_correct: opt.isCorrect
+        }));
 
-    if (this.isEditing && this.editingQuestionnaireId) {
-      // Si estamos editando, eliminar el cuestionario anterior y crear uno nuevo
-      this.questionnaireService.deleteQuestionnaire(this.editingQuestionnaireId).subscribe({
-        next: () => {
-          // Después de eliminar, crear el nuevo
-          this.createNewQuestionnaire(questionnaireData);
+      if (validOptions.length < 2) {
+        alert('Por favor agrega al menos 2 opciones');
+        return;
+      }
+
+      questionData.options = validOptions;
+    } else if (this.selectedQuestionType === 'abierta') {
+      // Para preguntas abiertas, no se necesitan opciones
+      questionData.options = [];
+    } else {
+      // Para otros tipos (como cuestionario), usar opciones vacías por ahora
+      questionData.options = [];
+    }
+
+    // Agregar o actualizar la pregunta según si estamos editando
+    if (this.isEditing && this.editingQuestionId) {
+      // Actualizar pregunta existente
+      this.questionnaireService.updateQuestionInQuestionnaire(this.currentQuestionnaireId, this.editingQuestionId, questionData).subscribe({
+        next: (response) => {
+          alert('Pregunta actualizada exitosamente');
+          this.loadQuestionsForQuestionnaire(this.currentQuestionnaireId!); // Recargar preguntas
+          this.resetForm();
         },
         error: (error) => {
-          console.error('Error deleting old questionnaire:', error);
-          alert('Error al actualizar el cuestionario');
+          console.error('Error updating question:', error);
+          alert('Error al actualizar la pregunta');
         }
       });
     } else {
-      // Crear nuevo cuestionario
-      this.createNewQuestionnaire(questionnaireData);
+      // Agregar nueva pregunta
+      this.questionnaireService.addQuestionToQuestionnaire(this.currentQuestionnaireId, questionData).subscribe({
+        next: (response) => {
+          alert('Pregunta agregada exitosamente al cuestionario');
+          this.loadQuestionsForQuestionnaire(this.currentQuestionnaireId!); // Recargar preguntas
+          this.resetForm();
+        },
+        error: (error) => {
+          console.error('Error saving question:', error);
+          alert('Error al guardar la pregunta');
+        }
+      });
     }
-  }
-
-  // Método auxiliar para crear un nuevo cuestionario
-  createNewQuestionnaire(questionnaireData: any) {
-    this.questionnaireService.createQuestionnaire(questionnaireData).subscribe({
-      next: (response) => {
-        const message = this.isEditing ? 'Cuestionario actualizado exitosamente' : 'Cuestionario guardado exitosamente';
-        alert(message);
-        this.loadQuestionnaires(); // Recargar la lista
-        this.resetForm();
-        this.isEditing = false;
-        this.editingQuestionnaireId = null;
-      },
-      error: (error) => {
-        console.error('Error saving questionnaire:', error);
-        alert('Error al guardar el cuestionario');
-      }
-    });
   }
 
   // Método para resetear el formulario
@@ -334,95 +305,132 @@ export class CrearCuestionarioForm implements OnInit {
       { text: '', isCorrect: false }
     ];
     this.currentView = 'options';
+
+    // Reset editing flags
+    this.isEditing = false;
+    this.editingQuestionId = null;
   }
 
   // Método para mostrar/ocultar el menú de opciones
-  toggleMenu(event: Event, questionnaire: any) {
+  toggleMenu(event: Event, question: any) {
     event.stopPropagation(); // Evitar que se propague el click
 
     // Cerrar otros menús abiertos
-    this.questionnaires.forEach(q => {
-      if (q !== questionnaire) {
+    this.questions.forEach(q => {
+      if (q !== question) {
         q.showMenu = false;
       }
     });
 
-    // Toggle el menú del cuestionario actual
-    questionnaire.showMenu = !questionnaire.showMenu;
+    // Toggle el menú de la pregunta actual
+    question.showMenu = !question.showMenu;
   }
 
-  // Método para duplicar un cuestionario
-  duplicateQuestionnaire(questionnaire: any) {
-    // Cerrar el menú
-    questionnaire.showMenu = false;
+  // Método para cargar una pregunta para editarla
+  loadQuestionForEditing(question: any) {
+    // Marcar que estamos editando
+    this.isEditing = true;
+    this.editingQuestionId = question.id;
 
-    // Cargar los datos del cuestionario para duplicar
-    this.questionnaireService.getQuestionnaire(questionnaire.id).subscribe({
-      next: (data) => {
-        // Crear una copia con título modificado
-        const duplicatedData = {
-          ...data,
-          title: `${data.title} (Copia)`
-        };
+    // Cargar los datos de la pregunta en el formulario
+    this.questionText = question.text;
+    this.questionDescription = question.description || '';
+    this.selectedQuestionType = question.question_type;
+    this.allowMultipleOptions = question.allow_multiple;
+    this.maxSelectableOptions = question.max_options;
+    this.showCorrectAnswer = question.options.some((opt: any) => opt.is_correct);
+    this.showQuestionDescription = !!question.description;
 
-        // Crear el cuestionario duplicado
-        this.questionnaireService.createQuestionnaire(duplicatedData).subscribe({
-          next: (response) => {
-            alert('Cuestionario duplicado exitosamente');
-            this.loadQuestionnaires(); // Recargar la lista
-          },
-          error: (error) => {
-            console.error('Error duplicating questionnaire:', error);
-            alert('Error al duplicar el cuestionario');
-          }
-        });
+    // Cargar las opciones
+    this.options = question.options.map((opt: any) => ({
+      text: opt.text,
+      isCorrect: opt.is_correct
+    }));
+
+    // Asegurar que haya al menos 4 opciones
+    while (this.options.length < 4) {
+      this.options.push({ text: '', isCorrect: false });
+    }
+
+    // Cambiar a vista de formulario
+    this.currentView = 'form';
+
+    console.log('Pregunta cargada para editar:', question);
+  }
+
+  // Método para duplicar una pregunta
+  duplicateQuestion(question: any) {
+    // Crear una copia de la pregunta
+    const duplicatedQuestion = {
+      text: question.text + ' (Copia)',
+      description: question.description,
+      question_type: question.question_type,
+      allow_multiple: question.allow_multiple,
+      max_options: question.max_options,
+      options: question.options.map((opt: any) => ({
+        text: opt.text,
+        is_correct: opt.is_correct
+      }))
+    };
+
+    // Agregar la pregunta duplicada al cuestionario
+    this.questionnaireService.addQuestionToQuestionnaire(this.currentQuestionnaireId!, duplicatedQuestion).subscribe({
+      next: (response) => {
+        alert('Pregunta duplicada exitosamente');
+        this.loadQuestionsForQuestionnaire(this.currentQuestionnaireId!); // Recargar preguntas
       },
       error: (error) => {
-        console.error('Error loading questionnaire for duplication:', error);
-        alert('Error al cargar el cuestionario para duplicar');
+        console.error('Error duplicating question:', error);
+        alert('Error al duplicar la pregunta');
       }
     });
+
+    question.showMenu = false;
   }
 
-  // Método para poblar el formulario con datos de un cuestionario existente
-  populateFormWithQuestionnaire(questionnaire: any) {
-    if (questionnaire.questions && questionnaire.questions.length > 0) {
-      const question = questionnaire.questions[0]; // Tomar la primera pregunta
+  // Método para eliminar una pregunta
+  deleteQuestionFromQuestionnaire(question: any) {
+    if (confirm(`¿Estás seguro de que quieres eliminar la pregunta "${question.text}"?`)) {
+      this.questionnaireService.deleteQuestionFromQuestionnaire(this.currentQuestionnaireId!, question.id).subscribe({
+        next: (response) => {
+          alert('Pregunta eliminada exitosamente');
+          this.loadQuestionsForQuestionnaire(this.currentQuestionnaireId!); // Recargar preguntas
+        },
+        error: (error) => {
+          console.error('Error deleting question:', error);
+          alert('Error al eliminar la pregunta');
+        }
+      });
+    }
+    question.showMenu = false;
+  }
 
-      this.questionText = question.text;
-      this.questionDescription = question.description || '';
-      this.selectedQuestionType = question.question_type;
-      this.allowMultipleOptions = question.allow_multiple;
-      this.maxSelectableOptions = question.max_options;
-      this.showCorrectAnswer = question.options.some((opt: any) => opt.is_correct);
-      this.showQuestionDescription = !!question.description;
+  // Métodos para el sidebar de configuración
+  toggleConfigSidebar() {
+    this.showConfigSidebar = !this.showConfigSidebar;
+  }
 
-      // Poblar las opciones
-      this.options = question.options.map((opt: any) => ({
-        text: opt.text,
-        isCorrect: opt.is_correct
-      }));
+  toggleMultipleOptions() {
+    this.allowMultipleOptions = !this.allowMultipleOptions;
+  }
 
-      // Asegurar que haya al menos 4 opciones
-      while (this.options.length < 4) {
-        this.options.push({ text: '', isCorrect: false });
-      }
+  toggleCorrectAnswer() {
+    this.showCorrectAnswer = !this.showCorrectAnswer;
+  }
+
+  toggleQuestionDescription() {
+    this.showQuestionDescription = !this.showQuestionDescription;
+  }
+
+  increaseMaxOptions() {
+    if (this.maxSelectableOptions < this.options.length) {
+      this.maxSelectableOptions++;
     }
   }
 
-  // Método para eliminar un cuestionario
-  deleteQuestionnaire(questionnaire: any) {
-    if (confirm(`¿Estás seguro de que quieres eliminar el cuestionario "${questionnaire.title}"?`)) {
-      this.questionnaireService.deleteQuestionnaire(questionnaire.id).subscribe({
-        next: (response) => {
-          alert('Cuestionario eliminado exitosamente');
-          this.loadQuestionnaires(); // Recargar la lista
-        },
-        error: (error) => {
-          console.error('Error deleting questionnaire:', error);
-          alert('Error al eliminar el cuestionario');
-        }
-      });
+  decreaseMaxOptions() {
+    if (this.maxSelectableOptions > 1) {
+      this.maxSelectableOptions--;
     }
   }
 }

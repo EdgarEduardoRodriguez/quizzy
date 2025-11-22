@@ -2,7 +2,11 @@
   <div class="encabezado-container">
     <div class="encabezado-brand">
       <span class="brand-icon">🧠</span>
-      <h1>Quizzy</h1>
+      <h1 *ngIf="!currentQuestionnaireName">Quizzy</h1>
+      <div *ngIf="currentQuestionnaireName" class="questionnaire-header">
+        <h1>{{ currentQuestionnaireName }}</h1>
+        <span class="questionnaire-label">Quizzy</span>
+      </div>
     </div>
     <nav class="encabezado-menu">
       <button class="encabezado-boton" (click)="onMenuClick('inicio')">
@@ -56,7 +60,7 @@
   <div id="navbarCreateModal" class="modal" [class.show]="showCreateModal">
     <div class="modal-overlay" (click)="cerrarCreateModal()"></div>
     <div class="modal-content">
-      <h2>¿Cómo deseas llamar a este cuestionario?</h2>
+      <h2>¿Cómo deseas llamar a este quizzy?</h2>
 
       <div class="form-group">
         <label>Asignar un nombre a su cuestionario</label>

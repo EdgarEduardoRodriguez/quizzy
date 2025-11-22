@@ -95,6 +95,82 @@ class QuestionnaireViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(questionnaire)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=['delete'], permission_classes=[AllowAny])
+    def delete_question(self, request, pk=None, question_id=None):
+        # Endpoint para eliminar una pregunta de un cuestionario
+        questionnaire = self.get_object()
+
+        # Obtener el ID de la pregunta desde la URL
+        question_id = request.query_params.get('question_id')
+        if not question_id:
+            return Response({'error': 'Se requiere question_id'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            question = Question.objects.get(id=question_id, questionnaire=questionnaire)
+            question.delete()
+
+            serializer = self.get_serializer(questionnaire)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Question.DoesNotExist:
+            return Response({'error': 'Pregunta no encontrada'}, status=status.HTTP_404_NOT_FOUND)
+
+    @action(detail=True, methods=['post'], permission_classes=[AllowAny])
+    def add_question(self, request, pk=None):
+        # Endpoint para agregar una pregunta a un cuestionario existente
+        questionnaire = self.get_object()
+        data = request.data
+        print("Datos recibidos en add_question:", data)  # Debug
+
+        # Verificar si es una actualización (si incluye question_id)
+        question_id = data.get('question_id')
+        if question_id:
+            # Actualizar pregunta existente
+            try:
+                question = Question.objects.get(id=question_id, questionnaire=questionnaire)
+
+                # Actualizar los campos de la pregunta
+                question.text = data['text']
+                question.description = data.get('description', '')
+                question.question_type = data.get('question_type', question.question_type)
+                question.allow_multiple = data.get('allow_multiple', question.allow_multiple)
+                question.max_options = data.get('max_options', question.max_options)
+                question.save()
+
+                # Eliminar opciones existentes y crear nuevas
+                question.options.all().delete()  # Eliminar todas las opciones existentes
+
+                for option_data in data.get('options', []):
+                    Option.objects.create(
+                        question=question,
+                        text=option_data['text'],
+                        is_correct=option_data.get('is_correct', False)
+                    )
+
+                serializer = self.get_serializer(questionnaire)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            except Question.DoesNotExist:
+                return Response({'error': 'Pregunta no encontrada'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            # Crear nueva pregunta
+            question = Question.objects.create(
+                questionnaire=questionnaire,
+                text=data['text'],
+                description=data.get('description', ''),
+                question_type=data.get('question_type', 'multiple'),
+                allow_multiple=data.get('allow_multiple', False),
+                max_options=data.get('max_options', 1)
+            )
+
+            for option_data in data.get('options', []):
+                Option.objects.create(
+                    question=question,
+                    text=option_data['text'],
+                    is_correct=option_data.get('is_correct', False)
+                )
+
+            serializer = self.get_serializer(questionnaire)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
  
 @api_view(['POST'])
 @permission_classes([AllowAny])

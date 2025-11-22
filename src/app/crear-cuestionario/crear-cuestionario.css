@@ -1,45 +1,7 @@
-.crear-container {
-  font-family: 'Roboto', sans-serif;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 70vh;
-  text-align: center;
-  padding: 2rem;
-}
-
-.crear-container h1 {
-  font-size: 2.5rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-  color: #43a047;
-}
-
-.crear-container p {
-  font-size: 1.2rem;
-  margin-bottom: 2rem;
-  color: #666;
-}
-
-.volver-btn {
-  background: #2196f3;
-  color: #fff;
-  border: none;
-  border-radius: 25px;
-  padding: 0.8rem 2rem;
-  font-size: 1rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.volver-btn:hover {
-  background: #1976d2;
+/* Efecto de elevación al hacer hover */
+.hover-lift:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4);
+  transition: transform 0.2s ease;
 }
 
 /* estilos css del reac */
@@ -63,7 +25,7 @@
 
 /* Sidebar en estado colapsado (solo iconos) */
 .sidebar-collapsed {
-  
+
   width: 80px;
   transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -83,14 +45,14 @@
    TEXTOS DEL SIDEBAR
    -------------------------------------------- */
 
-/* Textos visibles cuando el sidebar estรก expandido */
+/* Textos visibles cuando el sidebar está expandido */
 .sidebar-text-visible {
   opacity: 1;
   visibility: visible;
   transition: opacity 0.3s ease-in-out 0.1s, visibility 0s 0.1s;
 }
 
-/* Textos ocultos cuando el sidebar estรก colapsado */
+/* Textos ocultos cuando el sidebar está colapsado */
 .sidebar-text-hidden {
   opacity: 0;
   visibility: hidden;
@@ -98,19 +60,19 @@
 }
 
 /* --------------------------------------------
-   BOTร�N DE CHEVRONES (Colapsar/Expandir)
+   BOTÓN DE CHEVRONES (Colapsar/Expandir)
    -------------------------------------------- */
 
-/* Botรณn en posiciรณn cuando sidebar estรก expandido */
+/* Botón en posición cuando sidebar está expandido */
 .chevron-expanded {
-  left: 214px; /* 250px (sidebar) - 16px (mitad del botรณn) es para mover el boton */
+  left: 214px; /* 250px (sidebar) - 16px (mitad del botón) es para mover el boton */
   transform: rotate(0deg);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Botรณn en posiciรณn cuando sidebar estรก colapsado */
+/* Botón en posición cuando sidebar está colapsado */
 .chevron-collapsed {
-  left: 18px; /* 80px (sidebar) - 16px (mitad del botรณn) */
+  left: 18px; /* 80px (sidebar) - 16px (mitad del botón) */
   transform: rotate(180deg);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -128,7 +90,7 @@
   z-index: 1000; /* Asegura que esté por encima de otros elementos */
 }
 
-/* Efecto hover en el botรณn de chevrones */
+/* Efecto hover en el botón de chevrones */
 .chevron-button:hover {
   opacity: 0.8;
   cursor: pointer;
@@ -157,10 +119,10 @@
 }
 
 /* --------------------------------------------
-   BOTONES DE ACCIร�N (Editar/Eliminar)
+   BOTONES DE ACCIÓN (Editar/Eliminar)
    -------------------------------------------- */
 
-/* Efecto hover en botones de acciรณn */
+/* Efecto hover en botones de acción */
 .action-button {
   transition: all 0.2s ease;
   cursor: pointer;
@@ -171,12 +133,12 @@
   transform: scale(1.15);
 }
 
-/* Botรณn de editar (verde) */
+/* Botón de editar (verde) */
 .edit-button:hover {
   filter: brightness(1.2);
 }
 
-/* Botรณn de eliminar (rojo) */
+/* Botón de eliminar (rojo) */
 .delete-button:hover {
   filter: brightness(1.2);
 }
@@ -230,16 +192,16 @@
 }
 
 /* --------------------------------------------
-   ANIMACIร�N DEL CONTENIDO PRINCIPAL
+   ANIMACIÓN DEL CONTENIDO PRINCIPAL
    -------------------------------------------- */
 
-/* Contenido cuando sidebar estรก expandido */
+/* Contenido cuando sidebar está expandido */
 .content-expanded {
   margin-left: 250px;
   transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Contenido cuando sidebar estรก colapsado */
+/* Contenido cuando sidebar está colapsado */
 .content-collapsed {
   margin-left: 80px;
   transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -249,13 +211,360 @@
    UTILIDADES GENERALES
    -------------------------------------------- */
 
-/* Transiciรณn suave para elementos interactivos */
+/* Transición suave para elementos interactivos */
 .smooth-transition {
   transition: all 0.3s ease;
 }
 
-/* Efecto de elevaciรณn al hacer hover */
+/* Efecto de elevación al hacer hover */
 .hover-lift:hover {
   transform: translateY(-2px);
   transition: transform 0.2s ease;
+}
+
+/* ============================================
+   SELECTOR DE CUESTIONARIOS
+   ============================================ */
+
+/* Recuadro central blanco */
+.questionnaire-selector {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  padding: 2rem;
+  max-width: 1000px;
+  width: 100%;
+  margin: 2rem auto;
+}
+
+/* Header del selector */
+.selector-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.selector-header h2 {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 0.5rem 0;
+}
+
+.selector-header p {
+  font-size: 1.1rem;
+  color: #666;
+  margin: 0;
+}
+
+/* Sección de búsqueda */
+.search-section {
+  margin-bottom: 2rem;
+}
+
+.search-container {
+  position: relative;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.search-input {
+  width: 100%;
+  padding: 1rem 3rem 1rem 1.5rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 50px;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.2s;
+  background: #fafafa;
+}
+
+.search-input:focus {
+  border-color: #43a047;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(67, 160, 71, 0.1);
+}
+
+.search-icon {
+  position: absolute;
+  right: 1.2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+  font-size: 1.3rem;
+}
+
+/* Grid de cuestionarios */
+.questionnaire-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.questionnaire-card {
+  background: #fafafa;
+  border: 2px solid #f0f0f0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.questionnaire-card:hover {
+  border-color: #43a047;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.questionnaire-card.selected {
+  border-color: #43a047;
+  background: linear-gradient(135deg, #e8f5e8 0%, #f0f9f0 100%);
+  box-shadow: 0 4px 15px rgba(67, 160, 71, 0.2);
+}
+
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.checkbox-container {
+  flex-shrink: 0;
+  margin-top: 0.2rem;
+}
+
+.checkbox-icon {
+  font-size: 1.8rem;
+  color: #ccc;
+  transition: all 0.2s;
+}
+
+.checkbox-icon.checked {
+  color: #43a047;
+  transform: scale(1.1);
+}
+
+.questionnaire-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+  line-height: 1.3;
+  flex: 1;
+}
+
+.card-content {
+  margin-bottom: 1rem;
+}
+
+.questionnaire-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.stat-item i {
+  font-size: 1rem;
+  color: #43a047;
+}
+
+.questionnaire-description {
+  margin-top: 0.5rem;
+}
+
+.questionnaire-description p {
+  font-size: 0.9rem;
+  color: #555;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.card-footer {
+  border-top: 1px solid #e0e0e0;
+  padding-top: 0.8rem;
+  margin-top: 1rem;
+}
+
+.selected-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #43a047;
+  background: rgba(67, 160, 71, 0.1);
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+}
+
+.selected-indicator i {
+  font-size: 1rem;
+}
+
+/* Estado vacío */
+.no-questionnaires {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 3rem 2rem;
+}
+
+.empty-state i {
+  font-size: 4rem;
+  color: #e0e0e0;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.empty-state h3 {
+  font-size: 1.5rem;
+  color: #333;
+  margin: 0 0 0.5rem 0;
+}
+
+.empty-state p {
+  font-size: 1rem;
+  color: #666;
+  margin: 0 0 2rem 0;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Panel de selección */
+.selection-panel {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.selection-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.selection-count {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #43a047;
+}
+
+.selection-count i {
+  font-size: 1.2rem;
+}
+
+.selection-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.btn-continuar {
+  background: #43a047;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.8rem 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+}
+
+.btn-continuar:hover {
+  background: #388e3c;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(67, 160, 71, 0.3);
+}
+
+.btn-limpiar {
+  background: #f5f5f5;
+  color: #666;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 0.8rem 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+}
+
+.btn-limpiar:hover {
+  background: #ffeaea;
+  border-color: #e53935;
+  color: #e53935;
+}
+
+.btn-crear-nuevo {
+  background: #43a047;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.8rem 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+}
+
+.btn-crear-nuevo:hover {
+  background: #388e3c;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(67, 160, 71, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .questionnaire-selector {
+    padding: 1.5rem;
+  }
+
+  .questionnaire-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .selector-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .selection-panel {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .selection-actions {
+    justify-content: center;
+  }
 }

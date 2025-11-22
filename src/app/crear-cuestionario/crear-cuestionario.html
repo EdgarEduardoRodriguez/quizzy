@@ -41,7 +41,90 @@
 >
 
   <div class="crear-container">
-    <h1>Crear Nuevo Cuestionario</h1>
-    <p>¡Aquí puedes crear tu propio cuestionario!</p>
-  </div>
-</div>
+    <!-- Recuadro central blanco -->
+    <div class="questionnaire-selector">
+        <div class="selector-header">
+          <h2>Seleccionar un Quizzy</h2>
+          <p>Elige los cuestionarios que deseas utilizar</p>
+        </div>
+
+      <!-- Barra de búsqueda -->
+      <div class="search-section">
+        <div class="search-container">
+          <input
+            type="text"
+            class="search-input"
+            placeholder="Buscar cuestionarios por nombre..."
+            [(ngModel)]="searchTerm"
+            (input)="onSearch()"
+          >
+          <i class="material-icons search-icon">search</i>
+        </div>
+      </div>
+
+      <!-- Lista de cuestionarios para seleccionar -->
+      <div class="questionnaire-grid">
+        <div
+          *ngFor="let questionnaire of filteredQuestionnaires"
+          class="questionnaire-card"
+          [class.selected]="isSelected(questionnaire)"
+          (click)="toggleSelection(questionnaire)"
+        >
+          <div class="card-header">
+            <div class="checkbox-container">
+              <i class="material-icons checkbox-icon" [class.checked]="isSelected(questionnaire)">
+                {{ isSelected(questionnaire) ? 'check_circle' : 'radio_button_unchecked' }}
+              </i>
+            </div>
+            <h3 class="questionnaire-title">{{ questionnaire.title }}</h3>
+          </div>
+
+          <div class="card-content">
+            <div class="questionnaire-stats">
+              <div class="stat-item">
+                <i class="material-icons">help_outline</i>
+                <span>{{ questionnaire.questions?.length || 0 }} preguntas</span>
+              </div>
+              <div class="stat-item">
+                <i class="material-icons">calendar_today</i>
+                <span>{{ questionnaire.created_at | date:'dd/MM/yyyy' }}</span>
+              </div>
+            </div>
+
+            <div class="questionnaire-description" *ngIf="questionnaire.description">
+              <p>{{ questionnaire.description }}</p>
+            </div>
+          </div>
+
+          <div class="card-footer" *ngIf="isSelected(questionnaire)">
+            <span class="selected-indicator">
+              <i class="material-icons">check</i>
+              Seleccionado
+            </span>
+          </div>
+        </div>
+
+        <!-- Mensaje cuando no hay cuestionarios -->
+        <div *ngIf="filteredQuestionnaires.length === 0" class="no-questionnaires">
+          <div class="empty-state">
+            <i class="material-icons">quiz</i>
+            <h3>{{ searchTerm ? 'No se encontraron cuestionarios' : 'No hay cuestionarios disponibles' }}</h3>
+            <p>{{ searchTerm ? 'Intenta con otros términos de búsqueda' : 'Crea cuestionarios primero para poder seleccionarlos' }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel de acciones cuando hay seleccionados -->
+      <div class="selection-panel" *ngIf="selectedQuestionnaires.length > 0">
+        <div class="selection-info">
+          <span class="selection-count">
+            <i class="material-icons">check_circle</i>
+            {{ selectedQuestionnaires.length }} cuestionario{{ selectedQuestionnaires.length > 1 ? 's' : '' }} seleccionado{{ selectedQuestionnaires.length > 1 ? 's' : '' }}
+          </span>
+        </div>
+        <div class="selection-actions">
+          <button class="btn-limpiar" (click)="limpiarSeleccion()">
+            <i class="material-icons">clear</i>
+            Limpiar
+          </button>
+        </div>

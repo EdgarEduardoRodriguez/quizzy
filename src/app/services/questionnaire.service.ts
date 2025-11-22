@@ -25,4 +25,18 @@ export class QuestionnaireService {
   getQuestionnaire(id: number): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}questionnaires/${id}/`);
   }
+
+  addQuestionToQuestionnaire(questionnaireId: number, questionData: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}questionnaires/${questionnaireId}/add_question/`, questionData);
+  }
+
+  deleteQuestionFromQuestionnaire(questionnaireId: number, questionId: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}questionnaires/${questionnaireId}/delete_question/?question_id=${questionId}`);
+  }
+
+  updateQuestionInQuestionnaire(questionnaireId: number, questionId: number, questionData: any): Observable<any> {
+    // Incluir el question_id en los datos de la solicitud para actualizar
+    const dataWithId = { ...questionData, question_id: questionId };
+    return this.http.post<any>(`${this.apiUrl}questionnaires/${questionnaireId}/add_question/`, dataWithId);
+  }
 }

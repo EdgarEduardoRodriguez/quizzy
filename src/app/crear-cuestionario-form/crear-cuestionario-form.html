@@ -10,20 +10,22 @@
             <i class="material-icons sidebar-icon" [class.sidebar-icon-expanded]="!isSidebarCollapsed" [class.sidebar-icon-collapsed]="isSidebarCollapsed">add</i>
             <span class="sidebar-text" [class.sidebar-text-visible]="!isSidebarCollapsed" [class.sidebar-text-hidden]="isSidebarCollapsed">Agregar pregunta</span>
         </div>
-        <div class="sidebar-title" *ngIf="!isSidebarCollapsed">Mis preguntas</div>
-        <div class="sidebar-item" *ngFor="let questionnaire of questionnaires">
-            <i class="material-icons sidebar-icon" [class.sidebar-icon-expanded]="!isSidebarCollapsed" [class.sidebar-icon-collapsed]="isSidebarCollapsed">assignment</i>
+        <div class="sidebar-title" *ngIf="!isSidebarCollapsed">Preguntas del cuestionario</div>
+        <div class="sidebar-item" *ngFor="let question of questions" (click)="loadQuestionForEditing(question)">
+            <i class="material-icons sidebar-icon" [class.sidebar-icon-expanded]="!isSidebarCollapsed" [class.sidebar-icon-collapsed]="isSidebarCollapsed">
+                {{ question.question_type === 'multiple' ? 'checklist' : question.question_type === 'abierta' ? 'chat_bubble_outline' : 'assignment' }}
+            </i>
             <span class="sidebar-text" [class.sidebar-text-visible]="!isSidebarCollapsed" [class.sidebar-text-hidden]="isSidebarCollapsed">
-                {{ questionnaire.title }}
+                {{ question.text | slice:0:30 }}{{ question.text.length > 30 ? '...' : '' }}
             </span>
             <div class="sidebar-menu-container" *ngIf="!isSidebarCollapsed">
-                <i class="material-icons sidebar-menu-icon" (click)="toggleMenu($event, questionnaire)">more_vert</i>
-                <div class="sidebar-dropdown" [class.show]="questionnaire.showMenu">
-                    <div class="sidebar-dropdown-item" (click)="duplicateQuestionnaire(questionnaire)">
+                <i class="material-icons sidebar-menu-icon" (click)="toggleMenu($event, question)">more_vert</i>
+                <div class="sidebar-dropdown" [class.show]="question.showMenu">
+                    <div class="sidebar-dropdown-item" (click)="duplicateQuestion(question)">
                         <i class="material-icons">content_copy</i>
                         <span>Duplicar</span>
                     </div>
-                    <div class="sidebar-dropdown-item delete-item" (click)="deleteQuestionnaire(questionnaire)">
+                    <div class="sidebar-dropdown-item delete-item" (click)="deleteQuestionFromQuestionnaire(question)">
                         <i class="material-icons">delete_outline</i>
                         <span>Eliminar</span>
                     </div>
@@ -103,7 +105,9 @@
                         </div>
                     </div>
                     <div class="header-actions">
-                        <button class="save-btn" (click)="saveQuestionnaire()">Guardar Cuestionario</button>
+                        <button class="save-btn" (click)="saveQuestionnaire()">
+                            {{ isEditing ? 'Actualizar Pregunta' : 'Guardar Pregunta' }}
+                        </button>
                         <div class="delete-icon" (click)="deleteQuestion()">
                             <i class="material-icons">delete_outline</i>
                         </div>
@@ -130,8 +134,8 @@
                             [(ngModel)]="questionDescription"
                             rows="3"></textarea>
                      </div>
-                    <!-- mensaje cuando selecciona la respuesta correcta -->
-                     <div *ngIf="showCorrectAnswer && !hasCorrectAnswers" class="correct-answer-info">
+                    <!-- mensaje cuando selecciona la respuesta correcta (solo para preguntas múltiples) -->
+                     <div *ngIf="selectedQuestionType === 'multiple' && showCorrectAnswer && !hasCorrectAnswers" class="correct-answer-info">
                         <i class="material-icons">info</i>
                         <p>No olvide marcar la respuesta correcta</p>
                      </div>
@@ -202,43 +206,47 @@
         </div>
         <div class="config-sidebar-content">
             <div class="config-option">
-                <button class="toggle-button" (click)="toggleMultipleOptions()">
-                    <span class="toggle-text">Varias opciones</span>
-                    <i class="material-icons toggle-icon" [ngClass]="{'toggle-on': allowMultipleOptions, 'toggle-off': !allowMultipleOptions}">
-                        {{ allowMultipleOptions ? 'toggle_on' : 'toggle_off' }}
-                    </i>
-                </button>
-                <p class="option-description">
-                    Los participantes pueden seleccionar más de una opción
-                </p>
-                <!-- Sección adicional cuando varias opciones está activado -->
-                <div *ngIf="allowMultipleOptions" class="max-options-config">
-                    <div class="max-options-row">
-                        <span class="max-options-text">
-                            Los participantes pueden seleccionar hasta:
-                        </span>
-                        <div class="max-options-controls">
-                            <button class="control-btn" (click)="decreaseMaxOptions()">
-                                <i class="material-icons">do_not_disturb_on</i>
-                            </button>
-                            <span class="max-options-number">{{ maxSelectableOptions }}</span>
-                            <button class="control-btn" (click)="increaseMaxOptions()">
-                                <i class="material-icons">add_circle</i>
-                            </button>
+                <!-- Opciones para preguntas múltiples -->
+                <div *ngIf="selectedQuestionType === 'multiple'">
+                    <button class="toggle-button" (click)="toggleMultipleOptions()">
+                        <span class="toggle-text">Varias opciones</span>
+                        <i class="material-icons toggle-icon" [ngClass]="{'toggle-on': allowMultipleOptions, 'toggle-off': !allowMultipleOptions}">
+                            {{ allowMultipleOptions ? 'toggle_on' : 'toggle_off' }}
+                        </i>
+                    </button>
+                    <p class="option-description">
+                        Los participantes pueden seleccionar más de una opción
+                    </p>
+                    <!-- Sección adicional cuando varias opciones está activado -->
+                    <div *ngIf="allowMultipleOptions" class="max-options-config">
+                        <div class="max-options-row">
+                            <span class="max-options-text">
+                                Los participantes pueden seleccionar hasta:
+                            </span>
+                            <div class="max-options-controls">
+                                <button class="control-btn" (click)="decreaseMaxOptions()">
+                                    <i class="material-icons">do_not_disturb_on</i>
+                                </button>
+                                <span class="max-options-number">{{ maxSelectableOptions }}</span>
+                                <button class="control-btn" (click)="increaseMaxOptions()">
+                                    <i class="material-icons">add_circle</i>
+                                </button>
+                            </div>
                         </div>
                     </div>
+
+                    <button class="toggle-button" (click)="toggleCorrectAnswer()">
+                        <span class="toggle-text">Marque la respuesta correcta</span>
+                        <i class="material-icons toggle-icon" [ngClass]="{'toggle-on': showCorrectAnswer, 'toggle-off': !showCorrectAnswer}">
+                            {{ showCorrectAnswer ? 'toggle_on' : 'toggle_off' }}
+                        </i>
+                    </button>
+                    <p class="option-description">
+                        Seleccione y muestre la respuesta correcta para los participantes
+                    </p>
                 </div>
 
-                <button class="toggle-button" (click)="toggleCorrectAnswer()">
-                    <span class="toggle-text">Marque la respuesta correcta</span>
-                    <i class="material-icons toggle-icon" [ngClass]="{'toggle-on': showCorrectAnswer, 'toggle-off': !showCorrectAnswer}">
-                        {{ showCorrectAnswer ? 'toggle_on' : 'toggle_off' }}
-                    </i>
-                </button>
-                <p class="option-description">
-                    Seleccione y muestre la respuesta correcta para los participantes
-                </p>
-
+                <!-- Opción común para todas las preguntas: Descripción -->
                 <button class="toggle-button" (click)="toggleQuestionDescription()">
                     <span class="toggle-text"> Descripción  de la pregunta</span>
                     <i class="material-icons toggle-icon" [ngClass]="{'toggle-on': showQuestionDescription, 'toggle-off': !showQuestionDescription}">

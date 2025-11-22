@@ -3,6 +3,7 @@ import { Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Location } from '@angular/common';
+import { QuestionnaireService } from '../services/questionnaire.service';
 
 @Component({
   selector: 'app-encabezado',
@@ -24,7 +25,14 @@ export class Encabezado implements OnInit {
   showCreateModal: boolean = false;
   quizName: string = '';
 
-  constructor(private router: Router, private location: Location) {}
+  // Propiedad para mostrar el nombre del cuestionario actual
+  currentQuestionnaireName: string = '';
+
+  constructor(
+    private router: Router,
+    private location: Location,
+    private questionnaireService: QuestionnaireService
+  ) {}
 
   ngOnInit() {
     this.checkLoginStatus();
@@ -32,8 +40,22 @@ export class Encabezado implements OnInit {
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
         this.checkLoginStatus();
+        this.updateQuestionnaireName(event.url);
       }
     });
+  }
+
+  // Método para actualizar el nombre del cuestionario en el header
+  updateQuestionnaireName(url: string) {
+    if (url.includes('/crear-cuestionario-form')) {
+      // Extraer el nombre del cuestionario de los query params
+      const urlTree = this.router.parseUrl(url);
+      const nombre = urlTree.queryParams['nombre'];
+      this.currentQuestionnaireName = nombre || '';
+    } else {
+      // Limpiar el nombre cuando no estamos en la página de formulario
+      this.currentQuestionnaireName = '';
+    }
   }
 
   // Listener para clicks fuera del dropdown
@@ -79,11 +101,16 @@ export class Encabezado implements OnInit {
   }
 
   goBack() {
-    this.location.back();
+    // Si estamos en la página de formulario de cuestionario, ir a la página de selección
+    if (this.router.url.includes('/crear-cuestionario-form')) {
+      this.router.navigate(['/crear-cuestionario']);
+    } else {
+      this.location.back();
+    }
   }
 
   shouldShowBackButton(): boolean {
-    return this.router.url === '/crear-cuestionario-form';
+    return this.router.url.includes('/crear-cuestionario-form');
   }
 
   checkLoginStatus() {
@@ -140,10 +167,30 @@ export class Encabezado implements OnInit {
 
   crearCuestionarioDesdeNavbar() {
     if (this.quizName.trim()) {
-      console.log('Creando cuestionario desde navbar:', this.quizName);
-      alert(`¡Cuestionario "${this.quizName}" creado exitosamente!`);
-      this.cerrarCreateModal();
-      this.router.navigate(['/crear-cuestionario-form']);
+      // Crear el cuestionario en el backend
+      const questionnaireData = {
+        title: this.quizName.trim(),
+        description: '',
+        questions: [] // Cuestionario vacío inicialmente
+      };
+
+      this.questionnaireService.createQuestionnaire(questionnaireData).subscribe({
+        next: (response) => {
+          console.log('Cuestionario creado exitosamente:', response);
+          this.cerrarCreateModal();
+          // Navegar a crear-cuestionario con el nombre y el ID del cuestionario creado
+          this.router.navigate(['/crear-cuestionario'], {
+            queryParams: {
+              nombre: this.quizName.trim(),
+              id: response.id
+            }
+          });
+        },
+        error: (error) => {
+          console.error('Error creando cuestionario:', error);
+          alert('Error al crear el cuestionario. Inténtalo de nuevo.');
+        }
+      });
     } else {
       alert('Por favor, ingresa un nombre para el cuestionario.');
     }

@@ -716,6 +716,7 @@
   resize: vertical;
   outline: none;
   box-sizing: border-box;
+  margin-top: -2rem;
 }
 
 .form-hint {
