@@ -35,6 +35,8 @@
 
       <div class="or">o</div>
 
+      <div class="error-message" *ngIf="errorMessage">{{ errorMessage }}</div>
+
       <form class="login-form" (ngSubmit)="onLoginSubmit()">
         <input type="email" class="form-input" placeholder="Correo electrónico *" [(ngModel)]="loginForm.email" name="email" required />
         <input type="password" class="form-input" placeholder="Contraseña *" [(ngModel)]="loginForm.password" name="password" required />

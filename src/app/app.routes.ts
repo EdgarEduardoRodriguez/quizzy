@@ -4,6 +4,7 @@ import { CrearCuestionario } from './crear-cuestionario/crear-cuestionario';
 import { CrearCuestionarioForm } from './crear-cuestionario-form/crear-cuestionario-form';
 import { Registro } from './registro/registro';
 import { Login } from './login/login';
+import { Welcome } from './welcome/welcome';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/home', pathMatch: 'full' },
@@ -11,5 +12,6 @@ export const routes: Routes = [
   { path: 'crear-cuestionario', component: CrearCuestionario },
   { path: 'crear-cuestionario-form', component: CrearCuestionarioForm },
   { path: 'registro', component: Registro },
-  { path: 'login', component: Login }
+  { path: 'login', component: Login },
+  { path: 'welcome', component: Welcome }
 ];

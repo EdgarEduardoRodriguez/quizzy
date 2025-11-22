@@ -20,6 +20,9 @@ export class Login {
   // Opción de recordar sesión
   rememberMe: boolean = false;
 
+  // Me Mrjrdo
+  errorMessage: string = '';
+
   constructor(private router: Router, private userService: UserService) {}
 
   // Método para manejar el envío del formulario de login
@@ -33,14 +36,15 @@ export class Login {
       this.userService.login(credentials).subscribe({
         next: (response) => {
           console.log('Login exitoso:', response);
+          // Limpiar mensaje de error
+          this.errorMessage = '';
           // Guardar datos del usuario en localStorage
           localStorage.setItem('currentUser', JSON.stringify(response.user));
-          alert('¡Inicio de sesión exitoso! Bienvenido de vuelta a Quizzy.');
-          this.router.navigate(['/crear-cuestionario']);
+          this.router.navigate(['/welcome']);
         },
         error: (error) => {
           console.error('Error en login:', error);
-          alert('Error en el login: ' + (error.error?.error || 'Credenciales inválidas'));
+          this.errorMessage = 'Contraseña o usuario incorrectos';
         }
       });
     } else {
