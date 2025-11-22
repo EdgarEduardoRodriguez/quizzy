@@ -35,7 +35,7 @@ export class CrearCuestionarioForm implements OnInit {
   animateCards: boolean = false;
 
   // propiedad para controlar la vista actual
-  currentView: 'options' | 'form' = 'options';
+  currentView: 'options' | 'form' | 'cuestionario' = 'options';
 
   // propiedad para el tipo de pregunta seleccionado en el dropdown
   selectedQuestionType: string = 'multiple';
@@ -43,8 +43,7 @@ export class CrearCuestionarioForm implements OnInit {
   // mapeo de tipos de pregunta con sus iconos y nombres
   questionTypeConfig: { [key: string]: { icon: string, name: string} } = {
     'multiple': { icon: 'checklist', name: 'Opción múltiple' },
-    'abierta': { icon: 'chat_bubble_outline', name: 'Pregunta abierta' },
-    'cuestionario': { icon: 'assignment', name: 'Cuestionario' }
+    'abierta': { icon: 'chat_bubble_outline', name: 'Pregunta abierta' }
   };
 
   //propiedad computada para obtener la configutracion del tipo actual
@@ -73,6 +72,9 @@ export class CrearCuestionarioForm implements OnInit {
   //propuedad para el texto de la descripcion
   questionDescription: string ='';
 
+  //contador de preguntas especifico del cuestionario
+  questionnaireQuestionsCount: number = 0;
+
   // getter para verificar si hay al menos una respuesta correcta marcada
   get hasCorrectAnswers(): boolean {
     return this.options.some(option => option.isCorrect);
@@ -86,6 +88,12 @@ export class CrearCuestionarioForm implements OnInit {
     { text: '', isCorrect: false},
     { text: '', isCorrect: false}
   ];
+
+  // propiedades para la vista de cuestionario
+  questionnaireTitle: string = '';
+  showEmptyState: boolean = true;
+  showQuestionsContainer: boolean = false;
+  questionnaireQuestions: any[] = [];
 
   ngOnInit() {
     // Obtener el ID y nombre del cuestionario desde los query params
@@ -148,6 +156,8 @@ export class CrearCuestionarioForm implements OnInit {
       }
 
       this.currentView = 'form';
+    } else if (tipo === 'cuestionario') {
+      this.currentView = 'cuestionario';
     } else {
       alert(`Seleccionaste: ${tipo}`);
     }
@@ -431,6 +441,33 @@ export class CrearCuestionarioForm implements OnInit {
   decreaseMaxOptions() {
     if (this.maxSelectableOptions > 1) {
       this.maxSelectableOptions--;
+    }
+  }
+
+  // Métodos para la vista de cuestionario
+  addFirstQuestion() {
+    this.showEmptyState = false;
+    this.showQuestionsContainer = true;
+    this.addQuestionnaireQuestion();
+  }
+
+  addQuestionnaireQuestion() {
+    const questionNumber = this.questionnaireQuestions.length + 1;
+    const newQuestion = {
+      id: Date.now(), // ID temporal
+      text: '',
+      type: 'text', // Por defecto respuesta corta
+      isFocused: true
+    };
+
+    this.questionnaireQuestions.push(newQuestion);
+  }
+
+  deleteQuestionnaireQuestion(questionId: number) {
+    this.questionnaireQuestions = this.questionnaireQuestions.filter(q => q.id !== questionId);
+    if (this.questionnaireQuestions.length === 0) {
+      this.showEmptyState = true;
+      this.showQuestionsContainer = false;
     }
   }
 }

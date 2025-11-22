@@ -11,6 +11,15 @@
             <span class="sidebar-text" [class.sidebar-text-visible]="!isSidebarCollapsed" [class.sidebar-text-hidden]="isSidebarCollapsed">Agregar pregunta</span>
         </div>
         <div class="sidebar-title" *ngIf="!isSidebarCollapsed">Preguntas del cuestionario</div>
+        <!-- elemneto del cuestionario -->
+        <div class="sidebar-item questionnaire-item" (click)="seleccionarTipo('cuestionario')">
+            <i class="material-icons sidebar-icon" [class.sidebar-icon-expanded]="!isSidebarCollapsed" [class.sidebar-icon-collapsed]="isSidebarCollapsed">assignment</i>
+            <div class="questionnaire-info" *ngIf="!isSidebarCollapsed">
+                <span class="questionnaire-name">{{ questionnaireTitle || 'Cuestionario sin título' }}</span>
+                <span class="questionnaire-count"> {{ questionnaireQuestionsCount  }} preguntas</span>
+            </div>
+        </div>
+
         <div class="sidebar-item" *ngFor="let question of questions" (click)="loadQuestionForEditing(question)">
             <i class="material-icons sidebar-icon" [class.sidebar-icon-expanded]="!isSidebarCollapsed" [class.sidebar-icon-collapsed]="isSidebarCollapsed">
                 {{ question.question_type === 'multiple' ? 'checklist' : question.question_type === 'abierta' ? 'chat_bubble_outline' : 'assignment' }}
@@ -56,6 +65,43 @@
 >
 
     <div class="crear-container">
+        <!-- Vista del cuestionario -->
+        <div *ngIf="currentView === 'cuestionario'" class="multiple-choice-form">
+            <div class="config-container">
+                <div class="header">
+                    <div class="title-group">
+                        <i class="material-icons">assignment</i>
+                        <span>Cuestionario</span>
+                    </div>
+                    <div class="header-actions">
+                        <button class="save-btn">
+                            Guardar Cuestionario
+                        </button>
+                        <div class="delete-icon">
+                            <i class="material-icons">delete_outline</i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content">
+                    <input
+                        type="text"
+                        class="question-input"
+                        placeholder="Nombre del cuestionario..."
+                        [(ngModel)]="questionnaireTitle">
+
+                    <!-- Estado vacío -->
+                    <div class="empty-state" *ngIf="showEmptyState" id="emptyState">
+                        <p class="text-muted mb-4">El cuestionario está vacío</p>
+                        <button class="btn-add-first">
+                            <i class="material-icons">add</i>
+                            <span>Añadir primera pregunta</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Vista de opciones de preguntas -->
         <div *ngIf="currentView === 'options'" class="interaction-grid" [class.animate-cards]="animateCards">
 
@@ -100,7 +146,7 @@
                                 
                                 <div class="dropdown-option" (click)="selectQuestionType('multiple')">Opción múltiple</div>
                                 <div class="dropdown-option" (click)="selectQuestionType('abierta')">Pregunta abierta</div>
-                                <div class="dropdown-option" (click)="selectQuestionType('cuestionario')">Cuestionario</div>
+
                             </div>
                         </div>
                     </div>
@@ -177,17 +223,7 @@
                             readonly></textarea>
                     </div>
 
-                    <!-- Formulario para cuestionario -->
-                    <div *ngIf="selectedQuestionType === 'cuestionario'" class="quiz-form">
-                        <div class="quiz-info">
-                            <i class="material-icons">info</i>
-                            <p>Los cuestionarios permiten agrupar múltiples preguntas relacionadas.</p>
-                        </div>
-                        <div class="add-question-btn">
-                            <i class="material-icons">add</i>
-                            <span>Agregar pregunta al cuestionario</span>
-                        </div>
-                    </div>
+
                 </div>
             </div>
         </div>
@@ -263,4 +299,3 @@
      <div class="config-sidebar-overlay"
      [class.active]="showConfigSidebar"
      (click)="toggleConfigSidebar()"></div>
-</div>
