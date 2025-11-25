@@ -27,7 +27,7 @@
       </button>
       <button class="crear-cuestionario-btn" (click)="onCrearCuestionario()" *ngIf="isLoggedIn">
         <span class="icono-plus">➕</span>
-        Crear Cuestionario
+        Crear quizzy
       </button>
 
       <!-- Botón de perfil del usuario -->
@@ -63,8 +63,8 @@
       <h2>¿Cómo deseas llamar a este quizzy?</h2>
 
       <div class="form-group">
-        <label>Asignar un nombre a su cuestionario</label>
-        <input type="text" [(ngModel)]="quizName" placeholder="Nombre del Cuestionario" required (keydown.enter)="crearCuestionarioDesdeNavbar()">
+        <label>Asignar un nombre a su quizzy</label>
+        <input type="text" [(ngModel)]="quizName" placeholder="Nombre del quizzy" required (keydown.enter)="crearCuestionarioDesdeNavbar()">
       </div>
 
       <div class="info-box">
@@ -74,7 +74,7 @@
 
       <div class="modal-footer">
         <button class="btn-cancel" (click)="cerrarCreateModal()">Cancelar</button>
-        <button class="btn-create" (click)="crearCuestionarioDesdeNavbar()">Crear cuestionario</button>
+        <button class="btn-create" (click)="crearCuestionarioDesdeNavbar()">Crear quizzy</button>
       </div>
     </div>
   </div>
