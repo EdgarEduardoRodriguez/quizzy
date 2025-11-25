@@ -43,6 +43,19 @@ class Questionnaire(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        db_table = 'users_quizzy'
+
+    def __str__(self):
+        return self.title
+
+class SavedQuestionnaire(models.Model):
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    questions_data = models.JSONField()  # Store questions as JSON
+
     def __str__(self):
         return self.title
 

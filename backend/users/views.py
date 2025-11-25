@@ -3,8 +3,8 @@ from rest_framework.decorators import api_view, action, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from django.contrib.auth import authenticate, login
-from .models import CustomUser, Questionnaire, Question, Option
-from .serializers import QuestionnaireSerializer
+from .models import CustomUser, Questionnaire, Question, Option, SavedQuestionnaire
+from .serializers import QuestionnaireSerializer, SavedQuestionnaireSerializer
  
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -171,7 +171,61 @@ class QuestionnaireViewSet(viewsets.ModelViewSet):
 
             serializer = self.get_serializer(questionnaire)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
- 
+
+
+class SavedQuestionnaireViewSet(viewsets.ModelViewSet):
+    serializer_class = SavedQuestionnaireSerializer
+    queryset = SavedQuestionnaire.objects.all()
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        if self.request.user.is_authenticated:
+            return SavedQuestionnaire.objects.filter(user=self.request.user)
+        return SavedQuestionnaire.objects.all()
+
+    def perform_create(self, serializer):
+        if self.request.user.is_authenticated:
+            serializer.save(user=self.request.user)
+        else:
+            temp_user, created = CustomUser.objects.get_or_create(
+                email='test@example.com',
+                defaults={
+                    'first_name': 'Test',
+                    'last_name': 'User',
+                    'username': 'testuser'
+                }
+            )
+            serializer.save(user=temp_user)
+
+    @action(detail=False, methods=['post'], permission_classes=[AllowAny])
+    def save_questionnaire(self, request):
+        data = request.data
+        print("Datos para guardar cuestionario:", data)
+
+        # Para testing, usar usuario temporal si no hay usuario autenticado
+        if request.user.is_authenticated:
+            user = request.user
+        else:
+            user, created = CustomUser.objects.get_or_create(
+                email='test@example.com',
+                defaults={
+                    'first_name': 'Test',
+                    'last_name': 'User',
+                    'username': 'testuser'
+                }
+            )
+
+        saved_questionnaire = SavedQuestionnaire.objects.create(
+            user=user,
+            title=data.get('title', 'Cuestionario sin título'),
+            description=data.get('description', ''),
+            questions_data=data.get('questions', [])
+        )
+
+        serializer = self.get_serializer(saved_questionnaire)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login_user(request):

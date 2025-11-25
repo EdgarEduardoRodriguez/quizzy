@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Questionnaire, Question, Option
+from .models import Questionnaire, Question, Option, SavedQuestionnaire
 
 class OptionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -19,3 +19,8 @@ class QuestionnaireSerializer(serializers.ModelSerializer):
     class Meta:
         model = Questionnaire
         fields = ['id', 'title', 'description', 'created_at', 'questions']
+
+class SavedQuestionnaireSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SavedQuestionnaire
+        fields = ['id', 'title', 'description', 'created_at', 'questions_data']

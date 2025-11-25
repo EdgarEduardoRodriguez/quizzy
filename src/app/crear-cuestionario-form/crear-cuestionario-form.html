@@ -10,13 +10,23 @@
             <i class="material-icons sidebar-icon" [class.sidebar-icon-expanded]="!isSidebarCollapsed" [class.sidebar-icon-collapsed]="isSidebarCollapsed">add</i>
             <span class="sidebar-text" [class.sidebar-text-visible]="!isSidebarCollapsed" [class.sidebar-text-hidden]="isSidebarCollapsed">Agregar pregunta</span>
         </div>
+        <div class="sidebar-title" *ngIf="!isSidebarCollapsed">Cuestionarios guardados</div>
+        <!-- Cuestionarios guardados -->
+        <div class="sidebar-item questionnaire-item" *ngFor="let savedQuiz of savedQuestionnaires" (click)="selectSavedQuestionnaire(savedQuiz)">
+            <i class="material-icons sidebar-icon" [class.sidebar-icon-expanded]="!isSidebarCollapsed" [class.sidebar-icon-collapsed]="isSidebarCollapsed">assignment</i>
+            <div class="questionnaire-info" *ngIf="!isSidebarCollapsed">
+                <span class="questionnaire-name">{{ savedQuiz.title }}</span>
+                <span class="questionnaire-count">{{ savedQuiz.questions_data?.length || 0 }} preguntas</span>
+            </div>
+        </div>
+
         <div class="sidebar-title" *ngIf="!isSidebarCollapsed">Preguntas del quizzy</div>
-        <!-- elemneto del cuestionario -->
-        <div class="sidebar-item questionnaire-item" (click)="seleccionarTipo('cuestionario')">
+        <!-- elemneto del cuestionario actual (solo si está guardado) -->
+        <div class="sidebar-item questionnaire-item" *ngIf="isQuestionnaireSaved" (click)="seleccionarTipo('cuestionario')">
             <i class="material-icons sidebar-icon" [class.sidebar-icon-expanded]="!isSidebarCollapsed" [class.sidebar-icon-collapsed]="isSidebarCollapsed">assignment</i>
             <div class="questionnaire-info" *ngIf="!isSidebarCollapsed">
                 <span class="questionnaire-name">{{ questionnaireTitle || 'Cuestionario sin título' }}</span>
-                <span class="questionnaire-count"> {{ questionnaireQuestionsCount  }} preguntas</span>
+                <span class="questionnaire-count">{{ questions.length }} preguntas</span>
             </div>
         </div>
 
@@ -74,7 +84,7 @@
                         <span>Cuestionario</span>
                     </div>
                     <div class="header-actions">
-                        <button class="save-btn">
+                        <button class="save-btn" (click)="saveCompleteQuestionnaire()">
                             Guardar Cuestionario
                         </button>
                         <div class="delete-icon">

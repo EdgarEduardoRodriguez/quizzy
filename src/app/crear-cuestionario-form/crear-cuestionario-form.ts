@@ -95,6 +95,11 @@ export class CrearCuestionarioForm implements OnInit {
   showQuestionsContainer: boolean = false;
   questionnaireQuestions: any[] = [];
 
+  // propiedades para cuestionarios guardados
+  savedQuestionnaires: any[] = [];
+  isQuestionnaireSaved: boolean = false;
+  savedQuestionnaireId: number | null = null;
+
   ngOnInit() {
     // Obtener el ID y nombre del cuestionario desde los query params
     this.route.queryParams.subscribe(params => {
@@ -105,6 +110,9 @@ export class CrearCuestionarioForm implements OnInit {
         this.loadQuestionsForQuestionnaire(this.currentQuestionnaireId);
       }
     });
+
+    // Cargar cuestionarios guardados
+    this.loadSavedQuestionnaires();
   }
 
   // Método para cargar las preguntas de un cuestionario específico
@@ -469,5 +477,60 @@ export class CrearCuestionarioForm implements OnInit {
       this.showEmptyState = true;
       this.showQuestionsContainer = false;
     }
+  }
+
+  // Método para cargar cuestionarios guardados
+  loadSavedQuestionnaires() {
+    this.questionnaireService.getSavedQuestionnaires().subscribe({
+      next: (data) => {
+        this.savedQuestionnaires = data;
+        console.log('Cuestionarios guardados cargados:', this.savedQuestionnaires);
+      },
+      error: (error) => {
+        console.error('Error loading saved questionnaires:', error);
+      }
+    });
+  }
+
+  // Método para guardar el cuestionario completo
+  saveCompleteQuestionnaire() {
+    if (!this.questionnaireTitle.trim()) {
+      alert('Por favor ingresa un título para el cuestionario');
+      return;
+    }
+
+    if (this.questions.length === 0) {
+      alert('El cuestionario debe tener al menos una pregunta');
+      return;
+    }
+
+    const questionnaireData = {
+      title: this.questionnaireTitle,
+      description: '',
+      questions: this.questions
+    };
+
+    this.questionnaireService.saveQuestionnaire(questionnaireData).subscribe({
+      next: (response) => {
+        alert('Cuestionario guardado exitosamente');
+        this.isQuestionnaireSaved = true;
+        this.savedQuestionnaireId = response.id;
+        this.loadSavedQuestionnaires(); // Recargar la lista
+        console.log('Cuestionario guardado:', response);
+      },
+      error: (error) => {
+        console.error('Error saving questionnaire:', error);
+        alert('Error al guardar el cuestionario');
+      }
+    });
+  }
+
+  // Método para seleccionar un cuestionario guardado
+  selectSavedQuestionnaire(questionnaire: any) {
+    this.questionnaireTitle = questionnaire.title;
+    this.questions = questionnaire.questions_data || [];
+    this.isQuestionnaireSaved = true;
+    this.savedQuestionnaireId = questionnaire.id;
+    this.currentView = 'cuestionario';
   }
 }
