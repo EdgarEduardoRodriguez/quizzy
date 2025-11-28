@@ -157,4 +157,39 @@ export class CrearCuestionario implements OnInit {
     // Por ahora solo mostrar un mensaje
     alert('Funcionalidad para ver preguntas pendiente de implementar');
   }
+
+  // metodo para eleminar un cuestionario
+  deleteQuestionnaire(event: Event, questionnaire: any) {
+    // prevenir que el evento se propage al contenedor padre
+    event.stopPropagation();
+
+    // mostar confirmacion al usuario
+    const confirmDelete = confirm(
+    `¿Estás seguro de que quieres eliminar el cuestionario "${questionnaire.title}"?\n\n` +
+    'Esta acción no se puede deshacer.'
+    );
+
+    // si el usuario confirma, proceder con la elemininacion
+    if (confirmDelete) {
+      this.questionnaireService.deleteQuestionnaire(questionnaire.id).subscribe({
+        next: (response) => {
+          // mostrar mensaje de exito
+          alert('cuestionario eleminado exitosamente');
+
+          // recargar la lista de cuestionarios
+          this.loadQuestionnaires();
+
+          // si el cuestionario eleminado estaba seleccionado, removerlo de la seleccion
+          this.selectedQuestionnaires = this.selectedQuestionnaires.filter(
+            q => q.id !== questionnaire.id
+          );
+        },
+        error: (error) => {
+          //mostrar mensaje de error
+          console.error('Error al eliminar cuestionario', error);
+          alert('Error al eliminar el cuestionario. Inténtalo de nuevo.');
+        }
+      });
+    }
+  }
 }

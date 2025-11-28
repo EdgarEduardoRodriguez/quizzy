@@ -329,6 +329,39 @@
   align-items: flex-start;
   gap: 1rem;
   margin-bottom: 1rem;
+  position: relative; /* para posicionar el boton de eliminar*/
+}
+
+/* Botón de eliminar */
+.delete-button {
+  background: #f44336;        /* Rojo para indicar peligro */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;                /* Oculto por defecto */
+  transition: all 0.2s ease;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.questionnaire-card:hover .delete-button {
+  opacity: 1;                /* Visible al hacer hover en la tarjeta */
+}
+
+.delete-button:hover {
+  background: #d32f2f;        /* Rojo más oscuro al hover */
+  transform: scale(1.1);     /* Efecto de agrandamiento */
+}
+
+.delete-button i {
+  font-size: 18px;           /* Tamaño del icono */
 }
 
 .checkbox-container {

@@ -77,6 +77,15 @@
               </i>
             </div>
             <h3 class="questionnaire-title">{{ questionnaire.title }}</h3>
+
+            <!-- boton para eliminar -->
+             <button
+              class="delete-button action-button"
+              (click)="deleteQuestionnaire($event, questionnaire)"
+              title="Eleminar cuestionario">
+              <i class="material-icons">delete_outline</i>
+
+             </button>
           </div>
 
           <div class="card-content">

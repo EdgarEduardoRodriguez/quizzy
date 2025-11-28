@@ -5,51 +5,49 @@
     [class.sidebar-collapsed]="isSidebarCollapsed"
 >
     <div class="sidebar-menu">
-        <div class="sidebar-title" *ngIf="!isSidebarCollapsed">Mis interacciones</div>
+        <div class="sidebar-title" *ngIf="!isSidebarCollapsed">Crear Preguntas</div>
         <div class="sidebar-item" (click)="onAgregarPregunta()">
             <i class="material-icons sidebar-icon" [class.sidebar-icon-expanded]="!isSidebarCollapsed" [class.sidebar-icon-collapsed]="isSidebarCollapsed">add</i>
-            <span class="sidebar-text" [class.sidebar-text-visible]="!isSidebarCollapsed" [class.sidebar-text-hidden]="isSidebarCollapsed">Agregar pregunta</span>
-        </div>
-        <div class="sidebar-title" *ngIf="!isSidebarCollapsed">Cuestionarios guardados</div>
-        <!-- Cuestionarios guardados -->
-        <div class="sidebar-item questionnaire-item" *ngFor="let savedQuiz of savedQuestionnaires" (click)="selectSavedQuestionnaire(savedQuiz)">
-            <i class="material-icons sidebar-icon" [class.sidebar-icon-expanded]="!isSidebarCollapsed" [class.sidebar-icon-collapsed]="isSidebarCollapsed">assignment</i>
-            <div class="questionnaire-info" *ngIf="!isSidebarCollapsed">
-                <span class="questionnaire-name">{{ savedQuiz.title }}</span>
-                <span class="questionnaire-count">{{ savedQuiz.questions_data?.length || 0 }} preguntas</span>
-            </div>
+            <span class="sidebar-text" [class.sidebar-text-visible]="!isSidebarCollapsed" [class.sidebar-text-hidden]="isSidebarCollapsed">Nueva pregunta</span>
         </div>
 
-        <div class="sidebar-title" *ngIf="!isSidebarCollapsed">Preguntas del quizzy</div>
-        <!-- elemneto del cuestionario actual (solo si está guardado) -->
-        <div class="sidebar-item questionnaire-item" *ngIf="isQuestionnaireSaved" (click)="seleccionarTipo('cuestionario')">
-            <i class="material-icons sidebar-icon" [class.sidebar-icon-expanded]="!isSidebarCollapsed" [class.sidebar-icon-collapsed]="isSidebarCollapsed">assignment</i>
-            <div class="questionnaire-info" *ngIf="!isSidebarCollapsed">
-                <span class="questionnaire-name">{{ questionnaireTitle || 'Cuestionario sin título' }}</span>
-                <span class="questionnaire-count">{{ questions.length }} preguntas</span>
-            </div>
-        </div>
+        <!-- Lista de preguntas guardadas -->
+        <div class="sidebar-title" *ngIf="!isSidebarCollapsed && questionnaireQuestions.length > 0">Preguntas guardadas</div>
+        <div class="sidebar-item saved-question" *ngFor="let question of questionnaireQuestions"[class.active-parent]="activeQuestionDropdown === question.id">
+            <!-- contenedor principal clickeable para editar -->
+             <div class="question-content" (click)="editQuestion(question)">
+                <i class="material-icons sidebar-icon" [class.sidebar-icon-expanded]="!isSidebarCollapsed" [class.sidebar-icon-collapsed]="isSidebarCollapsed">
+                    {{ question.question_type === 'multiple' ? 'checklist' : 'chat_bubble_outline' }}
+                </i>
+                <span class="sidebar-text" [class.sidebar-text-visible]="!isSidebarCollapsed" [class.sidebar-text-hidden]="isSidebarCollapsed">
+                    {{ question.text | slice:0:20 }}{{ question.text.length > 20 ? '...' : '' }}
+                </span>
+             </div>
 
-        <div class="sidebar-item" *ngFor="let question of questions" (click)="loadQuestionForEditing(question)">
-            <i class="material-icons sidebar-icon" [class.sidebar-icon-expanded]="!isSidebarCollapsed" [class.sidebar-icon-collapsed]="isSidebarCollapsed">
-                {{ question.question_type === 'multiple' ? 'checklist' : question.question_type === 'abierta' ? 'chat_bubble_outline' : 'assignment' }}
-            </i>
-            <span class="sidebar-text" [class.sidebar-text-visible]="!isSidebarCollapsed" [class.sidebar-text-hidden]="isSidebarCollapsed">
-                {{ question.text | slice:0:30 }}{{ question.text.length > 30 ? '...' : '' }}
-            </span>
-            <div class="sidebar-menu-container" *ngIf="!isSidebarCollapsed">
-                <i class="material-icons sidebar-menu-icon" (click)="toggleMenu($event, question)">more_vert</i>
-                <div class="sidebar-dropdown" [class.show]="question.showMenu">
-                    <div class="sidebar-dropdown-item" (click)="duplicateQuestion(question)">
+             <!-- boton de mas opciones -->
+              <div class="question-menu-container" *ngIf="!isSidebarCollapsed">
+                <button class="question-menu-btn" (click)="toggleQuestionDropdown(question.id, $event)">
+                    <i class="material-icons">more_vert</i>
+                </button>
+
+                <!-- dropdown de opciones -->
+                 <div class="question-dropdown" [class.show]="activeQuestionDropdown === question.id">
+                    <div class="question-dropdown-item" (click)="duplicateQuestion(question); $event.stopPropagation()">
                         <i class="material-icons">content_copy</i>
                         <span>Duplicar</span>
                     </div>
-                    <div class="sidebar-dropdown-item delete-item" (click)="deleteQuestionFromQuestionnaire(question)">
-                        <i class="material-icons">delete_outline</i>
+                    <div class="question-dropdown-item delete-item" (click)="deleteQuestionFromSidebar(question); $event.stopPropagation()">
+                        <i class="material-icons">delete</i>
                         <span>Eliminar</span>
                     </div>
-                </div>
-            </div>
+                 </div>
+              </div>
+        </div>
+
+        <!-- Mensaje cuando no hay preguntas -->
+        <div class="sidebar-item no-questions" *ngIf="questionnaireQuestions.length === 0 && !isSidebarCollapsed">
+            <i class="material-icons sidebar-icon">info</i>
+            <span class="sidebar-text">No hay preguntas guardadas</span>
         </div>
     </div>
 </div>
@@ -84,10 +82,7 @@
                         <span>Cuestionario</span>
                     </div>
                     <div class="header-actions">
-                        <button class="save-btn" (click)="saveCompleteQuestionnaire()">
-                            Guardar Cuestionario
-                        </button>
-                        <div class="delete-icon">
+                        <div class="delete-icon" (click)="deleteQuestionnaire()">
                             <i class="material-icons">delete_outline</i>
                         </div>
                     </div>
@@ -103,9 +98,9 @@
                     <!-- Estado vacío -->
                     <div class="empty-state" *ngIf="showEmptyState" id="emptyState">
                         <p class="text-muted mb-4">El cuestionario está vacío</p>
-                        <button class="btn-add-first">
+                        <button class="btn-add-first" (click)="seleccionarTipo('questionnaire')">
                             <i class="material-icons">add</i>
-                            <span>Añadir primera pregunta</span>
+                            <span>Añadir pregunta al cuestionario</span>
                         </button>
                     </div>
                 </div>
@@ -145,7 +140,7 @@
         <div *ngIf="currentView === 'form'" class="multiple-choice-form">
             <div class="config-container">
                 <div class="header">
-                    <div class="title-group">
+                    <div class="title-group" *ngIf="selectedQuestionType !== 'questionnaire'">
                         <div class="dropdown-container">
                             <div class="dropdown-trigger-area" (click)="toggleDropdown()">
                                 <i class="material-icons">{{ currentQuestionTypeConfig.icon}}</i>
@@ -160,6 +155,12 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="title-group" *ngIf="selectedQuestionType === 'questionnaire'">
+                        <i class="material-icons">assignment</i>
+                        <span>Pregunta del cuestionario</span>
+                    </div>
+
                     <div class="header-actions">
                         <button class="save-btn" (click)="saveQuestionnaire()">
                             {{ isEditing ? 'Actualizar Pregunta' : 'Guardar Pregunta' }}
@@ -190,6 +191,7 @@
                             [(ngModel)]="questionDescription"
                             rows="3"></textarea>
                      </div>
+
                     <!-- mensaje cuando selecciona la respuesta correcta (solo para preguntas múltiples) -->
                      <div *ngIf="selectedQuestionType === 'multiple' && showCorrectAnswer && !hasCorrectAnswers" class="correct-answer-info">
                         <i class="material-icons">info</i>
@@ -225,6 +227,43 @@
                         </div>
                     </div>
 
+                    <div *ngIf="selectedQuestionType === 'questionnaire'">
+                        <div class="options-list">
+                            <div class="option-row" *ngFor="let option of options; let i = index; trackBy: trackByIndex">
+                                <input
+                                    type="text"
+                                    class="option-input"
+                                    [placeholder]="'Opción ' + (i + 1)"
+                                    [(ngModel)]="option.text">
+                                
+                                <!-- icono de respuesta correcta -->
+                                 <span
+                                    *ngIf="showCorrectAnswer"
+                                    class="material-icons correct-answer-icon"
+                                    [class.correct-selected]="option.isCorrect"
+                                    (click)="toggleCorrectOption(i)">
+                                    check_circle_outline
+                                 </span>
+
+                                 <span class="material-icons delete-option" (click)="removeOption(i)">close</span>
+
+                            </div>
+                        </div>
+
+                        <div class="add-option" (click)="addOption()">
+                            <i class="material-icons">add</i>
+                            <span>Añadir opción</span>
+                        </div>
+
+                        <!-- Boton para añadir otra pregunta de cuestionario -->
+                        <div class="add-questionnaire-btn-container">
+                            <button class="add-questionnaire-btn" (click)="addAnotherQuestionnaireQuestion()">
+                                <i class="material-icons">add</i>
+                                <span>Añadir otra pregunta de cuestionario</span>
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- Formulario para pregunta abierta -->
                     <div *ngIf="selectedQuestionType === 'abierta'" class="open-question-form">
                         <textarea
@@ -253,7 +292,7 @@
         <div class="config-sidebar-content">
             <div class="config-option">
                 <!-- Opciones para preguntas múltiples -->
-                <div *ngIf="selectedQuestionType === 'multiple'">
+                <div *ngIf="selectedQuestionType === 'multiple' || selectedQuestionType === 'questionnaire'">
                     <button class="toggle-button" (click)="toggleMultipleOptions()">
                         <span class="toggle-text">Varias opciones</span>
                         <i class="material-icons toggle-icon" [ngClass]="{'toggle-on': allowMultipleOptions, 'toggle-off': !allowMultipleOptions}">
@@ -302,6 +341,19 @@
                 <p class="option-description">
                     Agregar una descripción visible para los participantes
                 </p>
+
+                <!-- Opción específica para preguntas de cuestionario: Temporizador -->
+                <div *ngIf="selectedQuestionType === 'questionnaire'">
+                    <button class="toggle-button" (click)="toggleQuestionTimer()">
+                        <span class="toggle-text">Añadir temporizador de preguntas</span>
+                        <i class="material-icons toggle-icon" [ngClass]="{'toggle-on': showQuestionTimer, 'toggle-off': !showQuestionTimer}">
+                            {{ showQuestionTimer ? 'toggle_on' : 'toggle_off' }}
+                        </i>
+                    </button>
+                    <p class="option-description">
+                        Establecer un límite de tiempo para responder a la pregunta
+                    </p>
+                </div>
             </div>
         </div>
     </div>

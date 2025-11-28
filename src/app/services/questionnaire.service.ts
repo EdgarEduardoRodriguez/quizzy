@@ -10,6 +10,7 @@ export class QuestionnaireService {
 
   constructor(private http: HttpClient) { }
 
+  // Métodos básicos para cuestionarios
   getQuestionnaires(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}questionnaires/`);
   }
@@ -35,25 +36,7 @@ export class QuestionnaireService {
   }
 
   updateQuestionInQuestionnaire(questionnaireId: number, questionId: number, questionData: any): Observable<any> {
-    // Incluir el question_id en los datos de la solicitud para actualizar
     const dataWithId = { ...questionData, question_id: questionId };
     return this.http.post<any>(`${this.apiUrl}questionnaires/${questionnaireId}/add_question/`, dataWithId);
-  }
-
-  // Métodos para cuestionarios guardados
-  getSavedQuestionnaires(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}saved-questionnaires/`);
-  }
-
-  saveQuestionnaire(data: any): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}saved-questionnaires/save_questionnaire/`, data);
-  }
-
-  deleteSavedQuestionnaire(id: number): Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}saved-questionnaires/${id}/`);
-  }
-
-  getSavedQuestionnaire(id: number): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}saved-questionnaires/${id}/`);
   }
 }
