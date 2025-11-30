@@ -150,7 +150,10 @@ export class Encabezado implements OnInit {
   }
 
   logout() {
+    // Limpiar tokens JWT y datos de usuario
     localStorage.removeItem('currentUser');
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
     this.isLoggedIn = false;
     this.userInitials = '';
     this.userName = '';

@@ -170,14 +170,15 @@
 }
 
 .sidebar-base {
-  position: absolute;
+  position: fixed;
   top: 87px;
   left: 0;
-  height: calc(100vh - 70px);
+  height: calc(100vh - 87px);
   background-color: #4caf50;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   z-index: 999;
-  overflow: visible; /* Permite que el dropdown se extienda fuera del sidebar */
+  overflow-y: auto; /* Permite scroll vertical cuando hay muchas preguntas */
+  overflow-x: hidden; /* Evita scroll horizontal */
 }
 
 /* --------------------------------------------
@@ -218,7 +219,7 @@
 
 /* Estilos base del botón de chevrones */
 .chevron-button {
-  position: absolute;
+  position: fixed;
   top: 88px; /* Lo bajamos un poco */
   width: 32px;
   height: 32px;
@@ -1342,4 +1343,94 @@
 
 .add-questionnaire-btn i {
   font-size: 1.4rem;
+}
+
+/* Contenedor del dropdown del temporizador */
+.timer-dropdown-container {
+  position: relative;
+  margin-top: -1rem;
+  margin-left: 2.2rem; /* Alinear con el texto "Pregunta del cuestionario" */
+}
+
+/* Área disparadora del dropdown del temporizador */
+.timer-trigger-area {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  margin-right: 1rem;
+  background-color: transparent;
+  border-radius: 0;
+  cursor: pointer;
+  border: none;
+  transition: color 0.2s;
+  min-width: auto;
+}
+
+.timer-trigger-area:hover {
+  color: #43a047;
+}
+
+.timer-display {
+  font-size: 0.9rem;
+  color: #333;
+  font-weight: 500;
+}
+
+/* Menú dropdown del temporizador */
+.timer-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  width: 140px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e0e0e0;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.2s ease;
+  z-index: 1000;
+  margin-top: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+/* Ocultar scrollbar del dropdown del temporizador */
+.timer-dropdown-menu::-webkit-scrollbar {
+  display: none;
+}
+
+.timer-dropdown-menu {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE y Edge */
+}
+
+.timer-dropdown-menu.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* Opciones individuales del dropdown del temporizador */
+.timer-option {
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-size: 0.8rem;
+  color: #333;
+}
+
+.timer-option:hover {
+  background-color: #f5f5f5;
+}
+
+.timer-option:first-child {
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+.timer-option:last-child {
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
 }

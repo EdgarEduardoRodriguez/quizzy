@@ -148,7 +148,7 @@
                                 <i class="material-icons">keyboard_arrow_down</i>
                             </div>
                             <div class="dropdown-menu" [class.show]="showDropdown">
-                                
+
                                 <div class="dropdown-option" (click)="selectQuestionType('multiple')">Opción múltiple</div>
                                 <div class="dropdown-option" (click)="selectQuestionType('abierta')">Pregunta abierta</div>
 
@@ -172,6 +172,23 @@
                             <i class="material-icons">settings</i>
                             <span>Configuración de pregunta</span>
                         </div>
+                    </div>
+                </div>
+
+                <!-- selector de temporizador para preguntas de cuestionario -->
+                <div class="timer-dropdown-container" *ngIf="selectedQuestionType === 'questionnaire'">
+                    <div class="timer-trigger-area" (click)="toggleTimerDropdown()">
+                        <span class="timer-display">{{ getTimerDisplayText() }}</span>
+                        <i class="material-icons">keyboard_arrow_down</i>
+                    </div>
+                    <div class="timer-dropdown-menu" [class.show]="showTimerDropdown">
+                        <div class="timer-option" (click)="selectTimer(0)">Sin temporizador</div>
+                        <div class="timer-option" (click)="selectTimer(10)">10 segundos</div>
+                        <div class="timer-option" (click)="selectTimer(20)">20 segundos</div>
+                        <div class="timer-option" (click)="selectTimer(30)">30 segundos</div>
+                        <div class="timer-option" (click)="selectTimer(60)">1 minuto</div>
+                        <div class="timer-option" (click)="selectTimer(120)">2 minutos</div>
+                        <div class="timer-option" (click)="selectTimer(180)">3 minutos</div>
                     </div>
                 </div>
 

@@ -29,12 +29,22 @@ export class UserService {
     });
   }
 
-  // Método para login
+  // Método para login con JWT
   login(credentials: {
     email: string;
     password: string;
   }): Observable<any> {
-    return this.http.post(`${this.apiUrl}/login/`, credentials, {
+    return this.http.post(`${this.apiUrl}/token/`, credentials, {
+      headers: this.getHeaders()
+    });
+  }
+
+  // Método para refrescar token JWT
+  refreshToken(): Observable<any> {
+    const refreshToken = localStorage.getItem('refresh_token');
+    return this.http.post(`${this.apiUrl}/token/refresh/`, {
+      refresh: refreshToken
+    }, {
       headers: this.getHeaders()
     });
   }

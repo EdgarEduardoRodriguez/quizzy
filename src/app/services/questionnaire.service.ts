@@ -10,33 +10,42 @@ export class QuestionnaireService {
 
   constructor(private http: HttpClient) { }
 
+  // Headers con JWT token
+  private getHeaders() {
+    const token = localStorage.getItem('access_token');
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': token ? `Bearer ${token}` : ''
+    };
+  }
+
   // Métodos básicos para cuestionarios
   getQuestionnaires(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}questionnaires/`);
+    return this.http.get<any[]>(`${this.apiUrl}questionnaires/`, { headers: this.getHeaders() });
   }
 
   createQuestionnaire(data: any): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}questionnaires/create_full/`, data);
+    return this.http.post<any>(`${this.apiUrl}questionnaires/create_full/`, data, { headers: this.getHeaders() });
   }
 
   deleteQuestionnaire(id: number): Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}questionnaires/${id}/`);
+    return this.http.delete<any>(`${this.apiUrl}questionnaires/${id}/`, { headers: this.getHeaders() });
   }
 
   getQuestionnaire(id: number): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}questionnaires/${id}/`);
+    return this.http.get<any>(`${this.apiUrl}questionnaires/${id}/`, { headers: this.getHeaders() });
   }
 
   addQuestionToQuestionnaire(questionnaireId: number, questionData: any): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}questionnaires/${questionnaireId}/add_question/`, questionData);
+    return this.http.post<any>(`${this.apiUrl}questionnaires/${questionnaireId}/add_question/`, questionData, { headers: this.getHeaders() });
   }
 
   deleteQuestionFromQuestionnaire(questionnaireId: number, questionId: number): Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}questionnaires/${questionnaireId}/delete_question/?question_id=${questionId}`);
+    return this.http.delete<any>(`${this.apiUrl}questionnaires/${questionnaireId}/delete_question/?question_id=${questionId}`, { headers: this.getHeaders() });
   }
 
   updateQuestionInQuestionnaire(questionnaireId: number, questionId: number, questionData: any): Observable<any> {
     const dataWithId = { ...questionData, question_id: questionId };
-    return this.http.post<any>(`${this.apiUrl}questionnaires/${questionnaireId}/add_question/`, dataWithId);
+    return this.http.post<any>(`${this.apiUrl}questionnaires/${questionnaireId}/add_question/`, dataWithId, { headers: this.getHeaders() });
   }
 }

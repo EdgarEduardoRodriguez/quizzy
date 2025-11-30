@@ -3,6 +3,7 @@ from rest_framework.decorators import api_view, action, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from django.contrib.auth import authenticate, login
+from rest_framework_simplejwt.tokens import RefreshToken
 from .models import CustomUser, Questionnaire, Question, Option, SavedQuestionnaire
 from .serializers import QuestionnaireSerializer, SavedQuestionnaireSerializer
  
@@ -178,15 +179,18 @@ class QuestionnaireViewSet(viewsets.ModelViewSet):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login_user(request):
+    """Login personalizado que retorna JWT tokens"""
     if request.method == 'POST':
         data = request.data
         try:
             user = CustomUser.objects.get(email=data['email'])
             # Comparar contraseña en texto plano (NO RECOMENDADO PARA PRODUCCIÓN)
             if user.password == data['password']:
-                login(request, user)
+                # Crear tokens JWT
+                refresh = RefreshToken.for_user(user)
                 return Response({
-                    'message': 'Login exitoso',
+                    'refresh': str(refresh),
+                    'access': str(refresh.access_token),
                     'user': {
                         'id': user.id,
                         'email': user.email,

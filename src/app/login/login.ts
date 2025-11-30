@@ -38,8 +38,13 @@ export class Login {
           console.log('Login exitoso:', response);
           // Limpiar mensaje de error
           this.errorMessage = '';
-          // Guardar datos del usuario en localStorage
-          localStorage.setItem('currentUser', JSON.stringify(response.user));
+          // Guardar tokens JWT en localStorage
+          localStorage.setItem('access_token', response.access);
+          localStorage.setItem('refresh_token', response.refresh);
+          // También guardar datos del usuario si están incluidos
+          if (response.user) {
+            localStorage.setItem('currentUser', JSON.stringify(response.user));
+          }
           this.router.navigate(['/welcome']);
         },
         error: (error) => {

@@ -64,6 +64,9 @@ export class CrearCuestionarioForm {
   //propuedad para el texto de la descripcion
   questionDescription: string ='';
 
+  // propiedad para el temporizador seleccionado
+  selectedTimer: number = 20;
+
   // getter para verificar si hay al menos una respuesta correcta marcada
   get hasCorrectAnswers(): boolean {
     return this.options.some(option => option.isCorrect);
@@ -95,6 +98,9 @@ export class CrearCuestionarioForm {
 
   // porpiedad para mostrar/ocultar el temporizdor de la pregunta
   showQuestionTimer: boolean = false;
+
+  // propiedad para mostrar/ocultar el dropdown del temporizador
+  showTimerDropdown: boolean = false;
 
   ngOnInit() {
     // obtener el ID y nombre del cuestionario desde los querry params
@@ -452,6 +458,10 @@ export class CrearCuestionarioForm {
 
   toggleQuestionTimer() {
     this.showQuestionTimer = !this.showQuestionTimer;
+    // Si se activa el temporizador, establecer automáticamente en 20 segundos
+    if (this.showQuestionTimer) {
+      this.selectedTimer = 20;
+    }
   }
 
   // Método para editar una pregunta existente
@@ -522,5 +532,33 @@ export class CrearCuestionarioForm {
     this.seleccionarTipo('questionnaire');
     // aqui ira la logaica del backend desues
     console.log('Añadir otra pregunta de cuestionario');
+  }
+
+  // metodo para mostrar/ocultar el dropdown del temporizador
+  toggleTimerDropdown() {
+    this.showTimerDropdown = !this.showTimerDropdown;
+  }
+
+  // metodo para obtener el texto a mostrar del temporizador
+  getTimerDisplayText(): string {
+    if (!this.showQuestionTimer) {
+      return 'Sin temporizador';
+    } else if (this.selectedTimer === 0) {
+      return 'Sin temporizador';
+    } else if (this.selectedTimer < 60) {
+      return `${this.selectedTimer} segundos`;
+    } else {
+      const minutes = Math.floor(this.selectedTimer / 60);
+      return `${minutes} minuto${minutes > 1 ? 's' : ''}`;
+    }
+  }
+
+  // metodo para seleccionar un tiempo del temporizador
+  selectTimer(seconds: number) {
+    this.selectedTimer = seconds;
+    // Si selecciona un tiempo > 0, activar el toggle del sidebar
+    // Si selecciona "Sin temporizador" (0), desactivar el toggle del sidebar
+    this.showQuestionTimer = seconds > 0;
+    this.showTimerDropdown = false;
   }
 }
