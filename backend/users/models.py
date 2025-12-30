@@ -49,15 +49,15 @@ class Questionnaire(models.Model):
     def __str__(self):
         return self.title
 
-class SavedQuestionnaire(models.Model):
-    title = models.CharField(max_length=200)
-    description = models.TextField(blank=True)
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
-    questions_data = models.JSONField()  # Store questions as JSON
+class Cuestionario(models.Model):
+    name = models.CharField(max_length=50)
+    questionnaire = models.ForeignKey(Questionnaire, on_delete=models.CASCADE, related_name='cuestionarios')
+
+    class Meta:
+        db_table = 'cuestionarios'
 
     def __str__(self):
-        return self.title
+        return self.name
 
 class Question(models.Model):
     QUESTION_TYPES = [
@@ -66,10 +66,12 @@ class Question(models.Model):
         ('cuestionario', 'Cuestionario'),
     ]
 
-    questionnaire = models.ForeignKey(Questionnaire, on_delete=models.CASCADE, related_name='questions')
+    questionnaire = models.ForeignKey(Questionnaire, on_delete=models.CASCADE, related_name='questions', null=True, blank=True)
+    cuestionario = models.ForeignKey(Cuestionario, on_delete=models.CASCADE, null=True, blank=True)
     text = models.TextField()
     description = models.TextField(blank=True)
     question_type = models.CharField(max_length=20, choices=QUESTION_TYPES)
+    time = models.IntegerField(null=True, blank=True)  # Tiempo en segundos
     allow_multiple = models.BooleanField(default=False)
     max_options = models.IntegerField(default=1)
 

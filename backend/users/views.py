@@ -4,8 +4,8 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from django.contrib.auth import authenticate, login
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import CustomUser, Questionnaire, Question, Option, SavedQuestionnaire
-from .serializers import QuestionnaireSerializer, SavedQuestionnaireSerializer
+from .models import CustomUser, Questionnaire, Cuestionario, Question, Option
+from .serializers import QuestionnaireSerializer, QuestionSerializer
  
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -128,7 +128,19 @@ class QuestionnaireViewSet(viewsets.ModelViewSet):
         if question_id:
             # Actualizar pregunta existente
             try:
-                question = Question.objects.get(id=question_id, questionnaire=questionnaire)
+                # Buscar la pregunta por ID sin filtrar por questionnaire inicialmente
+                question = Question.objects.get(id=question_id)
+
+                # Verificar que la pregunta pertenezca a este cuestionario
+                # (ya sea directamente o a través de un sub-cuestionario)
+                belongs_to_questionnaire = False
+                if question.questionnaire == questionnaire:
+                    belongs_to_questionnaire = True
+                elif question.cuestionario and question.cuestionario.questionnaire == questionnaire:
+                    belongs_to_questionnaire = True
+
+                if not belongs_to_questionnaire:
+                    return Response({'error': 'Pregunta no pertenece a este cuestionario'}, status=status.HTTP_403_FORBIDDEN)
 
                 # Actualizar los campos de la pregunta
                 question.text = data['text']
@@ -136,6 +148,7 @@ class QuestionnaireViewSet(viewsets.ModelViewSet):
                 question.question_type = data.get('question_type', question.question_type)
                 question.allow_multiple = data.get('allow_multiple', question.allow_multiple)
                 question.max_options = data.get('max_options', question.max_options)
+                question.time = data.get('time')
                 question.save()
 
                 # Eliminar opciones existentes y crear nuevas
@@ -153,12 +166,23 @@ class QuestionnaireViewSet(viewsets.ModelViewSet):
             except Question.DoesNotExist:
                 return Response({'error': 'Pregunta no encontrada'}, status=status.HTTP_404_NOT_FOUND)
         else:
+            # Verificar si se proporciona cuestionario_id
+            cuestionario_id = data.get('cuestionario_id')
+            cuestionario = None
+            if cuestionario_id:
+                try:
+                    cuestionario = Cuestionario.objects.get(id=cuestionario_id, questionnaire=questionnaire)
+                except Cuestionario.DoesNotExist:
+                    return Response({'error': 'Cuestionario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+
             # Crear nueva pregunta
             question = Question.objects.create(
-                questionnaire=questionnaire,
+                questionnaire=questionnaire if not cuestionario else None,
+                cuestionario=cuestionario,
                 text=data['text'],
                 description=data.get('description', ''),
                 question_type=data.get('question_type', 'multiple'),
+                time=data.get('time'),
                 allow_multiple=data.get('allow_multiple', False),
                 max_options=data.get('max_options', 1)
             )
@@ -172,6 +196,80 @@ class QuestionnaireViewSet(viewsets.ModelViewSet):
 
             serializer = self.get_serializer(questionnaire)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=['post'], permission_classes=[AllowAny])
+    def add_cuestionario(self, request, pk=None):
+        # Endpoint para agregar un cuestionario a un questionnaire existente
+        questionnaire = self.get_object()
+        data = request.data
+        print("Datos recibidos en add_cuestionario:", data)  # Debug
+
+        name = data.get('name')
+        if not name:
+            return Response({'error': 'Se requiere name'}, status=status.HTTP_400_BAD_REQUEST)
+
+        cuestionario = Cuestionario.objects.create(
+            questionnaire=questionnaire,
+            name=name
+        )
+
+        serializer = self.get_serializer(questionnaire)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=['put'], permission_classes=[AllowAny])
+    def update_cuestionario(self, request, pk=None):
+        # Endpoint para actualizar un cuestionario
+        questionnaire = self.get_object()
+        data = request.data
+        print("Datos recibidos en update_cuestionario:", data)  # Debug
+
+        cuestionario_id = data.get('cuestionario_id')
+        name = data.get('name')
+        if not cuestionario_id or not name:
+            return Response({'error': 'Se requieren cuestionario_id y name'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            cuestionario = Cuestionario.objects.get(id=cuestionario_id, questionnaire=questionnaire)
+            cuestionario.name = name
+            cuestionario.save()
+
+            serializer = self.get_serializer(questionnaire)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Cuestionario.DoesNotExist:
+            return Response({'error': 'Cuestionario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+
+    @action(detail=True, methods=['delete'], permission_classes=[AllowAny])
+    def delete_cuestionario(self, request, pk=None):
+        # Endpoint para eliminar un cuestionario
+        questionnaire = self.get_object()
+        cuestionario_id = request.query_params.get('cuestionario_id')
+        if not cuestionario_id:
+            return Response({'error': 'Se requiere cuestionario_id'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            cuestionario = Cuestionario.objects.get(id=cuestionario_id, questionnaire=questionnaire)
+            cuestionario.delete()
+
+            serializer = self.get_serializer(questionnaire)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Cuestionario.DoesNotExist:
+            return Response({'error': 'Cuestionario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+
+    @action(detail=True, methods=['get'], permission_classes=[AllowAny])
+    def get_cuestionario_questions(self, request, pk=None):
+        # Endpoint para obtener las preguntas de un cuestionario específico
+        questionnaire = self.get_object()
+        cuestionario_id = request.query_params.get('cuestionario_id')
+        if not cuestionario_id:
+            return Response({'error': 'Se requiere cuestionario_id'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            cuestionario = Cuestionario.objects.get(id=cuestionario_id, questionnaire=questionnaire)
+            questions = Question.objects.filter(cuestionario=cuestionario)
+            serializer = QuestionSerializer(questions, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Cuestionario.DoesNotExist:
+            return Response({'error': 'Cuestionario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
 
 
 

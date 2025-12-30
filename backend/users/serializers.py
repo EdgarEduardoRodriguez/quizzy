@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Questionnaire, Question, Option, SavedQuestionnaire
+from .models import Questionnaire, Cuestionario, Question, Option
 
 class OptionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -11,16 +11,27 @@ class QuestionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Question
-        fields = ['id', 'text', 'description', 'question_type', 'allow_multiple', 'max_options', 'options']
+        fields = ['id', 'text', 'description', 'question_type', 'time', 'allow_multiple', 'max_options', 'options']
+
+class CuestionarioSerializer(serializers.ModelSerializer):
+    question_set = QuestionSerializer(many=True, read_only=True, source='questions')
+
+    class Meta:
+        model = Cuestionario
+        fields = ['id', 'name', 'question_set']
 
 class QuestionnaireSerializer(serializers.ModelSerializer):
-    questions = QuestionSerializer(many=True, read_only=True)
+    cuestionarios = CuestionarioSerializer(many=True, read_only=True)
+    questions = serializers.SerializerMethodField()
 
     class Meta:
         model = Questionnaire
-        fields = ['id', 'title', 'description', 'created_at', 'questions']
+        fields = ['id', 'title', 'description', 'created_at', 'cuestionarios', 'questions']
 
-class SavedQuestionnaireSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SavedQuestionnaire
-        fields = ['id', 'title', 'description', 'created_at', 'questions_data']
+    def get_questions(self, obj):
+        questions = []
+        for cuestionario in obj.cuestionarios.all():
+            questions.extend(cuestionario.question_set.all())
+        # Also include questions not in any cuestionario
+        questions.extend(obj.questions.filter(cuestionario__isnull=True))
+        return QuestionSerializer(questions, many=True).data
