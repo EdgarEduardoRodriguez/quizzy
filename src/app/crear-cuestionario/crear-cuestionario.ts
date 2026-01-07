@@ -144,6 +144,40 @@ export class CrearCuestionario implements OnInit {
     this.selectedQuestionnaires = [];
   }
 
+  // Propiedad para controlar la visibilidad del toast
+  showToast: boolean = false;
+  toastMessage: string = '';
+  toastType: 'success' | 'error' = 'success';
+
+  // Método para copiar el código al portapapeles
+  copyToClipboard(code: string) {
+    navigator.clipboard.writeText(code).then(() => {
+      this.showToastMessage(`¡Código ${code} copiado!`, 'success');
+    }).catch(err => {
+      console.error('Error al copiar:', err);
+      // Fallback para navegadores antiguos
+      const textArea = document.createElement('textarea');
+      textArea.value = code;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      this.showToastMessage(`¡Código ${code} copiado!`, 'success');
+    });
+  }
+
+  // Método para mostrar mensajes toast
+  showToastMessage(message: string, type: 'success' | 'error' = 'success') {
+    this.toastMessage = message;
+    this.toastType = type;
+    this.showToast = true;
+
+    // Ocultar automáticamente después de 3 segundos
+    setTimeout(() => {
+      this.showToast = false;
+    }, 3000);
+  }
+
   // Método para agregar pregunta al cuestionario
   agregarPregunta() {
     // Navegar al formulario de crear pregunta con el nombre del cuestionario

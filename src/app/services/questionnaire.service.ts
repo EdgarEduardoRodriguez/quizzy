@@ -10,12 +10,10 @@ export class QuestionnaireService {
 
   constructor(private http: HttpClient) { }
 
-  // Headers con JWT token
+  // Headers
   private getHeaders() {
-    const token = localStorage.getItem('access_token');
     return {
-      'Content-Type': 'application/json',
-      'Authorization': token ? `Bearer ${token}` : ''
+      'Content-Type': 'application/json'
     };
   }
 
@@ -47,5 +45,26 @@ export class QuestionnaireService {
   updateQuestionInQuestionnaire(questionnaireId: number, questionId: number, questionData: any): Observable<any> {
     const dataWithId = { ...questionData, question_id: questionId };
     return this.http.post<any>(`${this.apiUrl}questionnaires/${questionnaireId}/add_question/`, dataWithId, { headers: this.getHeaders() });
+  }
+
+  addCuestionarioToQuestionnaire(questionnaireId: number, name: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}questionnaires/${questionnaireId}/add_cuestionario/`, { name }, { headers: this.getHeaders() });
+  }
+
+  updateCuestionario(questionnaireId: number, cuestionarioId: number, name: string): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}questionnaires/${questionnaireId}/update_cuestionario/`, { cuestionario_id: cuestionarioId, name }, { headers: this.getHeaders() });
+  }
+
+  deleteCuestionario(questionnaireId: number, cuestionarioId: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}questionnaires/${questionnaireId}/delete_cuestionario/?cuestionario_id=${cuestionarioId}`, { headers: this.getHeaders() });
+  }
+
+  getCuestionarioQuestions(questionnaireId: number, cuestionarioId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}questionnaires/${questionnaireId}/get_cuestionario_questions/?cuestionario_id=${cuestionarioId}`, { headers: this.getHeaders() });
+  }
+
+  // Método para acceder a un cuestionario por código (para invitados)
+  accessQuestionnaireByCode(code: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}quiz/${code}/`, { headers: this.getHeaders() });
   }
 }

@@ -17,62 +17,62 @@ export class CrearCuestionarioForm {
     private questionnaireService: QuestionnaireService
   ) {}
 
-  // Propiedad para controlar si el sidebar esta colapsado
+  // Propiedad para controlar si el sidebar está colapsado
   isSidebarCollapsed: boolean = false;
 
-  // propiedad para animar las tarjetas de opciones
+  // Propiedad para animar las tarjetas de opciones
   animateCards: boolean = false;
 
-  // propiedad para controlar la vista actual
+  // Propiedad para controlar la vista actual
   currentView: 'options' | 'form' | 'cuestionario' = 'options';
 
-  // propiedad para el tipo de pregunta seleccionado en el dropdown
+  // Propiedad para el tipo de pregunta seleccionado en el dropdown
   selectedQuestionType: string = 'multiple';
 
-  // mapeo de tipos de pregunta con sus iconos y nombres
+  // Mapeo de tipos de pregunta con sus iconos y nombres
   questionTypeConfig: { [key: string]: { icon: string, name: string} } = {
     'multiple': { icon: 'checklist', name: 'Opción múltiple' },
     'abierta': { icon: 'chat_bubble_outline', name: 'Pregunta abierta' }
   };
 
-  //propiedad computada para obtener la configutracion del tipo actual
+  // Propiedad computada para obtener la configuración del tipo actual
   get currentQuestionTypeConfig() {
     return this.questionTypeConfig[this.selectedQuestionType] || this.questionTypeConfig['multiple'];
   }
 
-  // propiedad para mostrar/ocultar el dropdown personalizado
+  // Propiedad para mostrar/ocultar el dropdown personalizado
   showDropdown: boolean = false;
 
-  // propiedad para controlar que dropdown de pregunta esta abierto
+  // Propiedad para controlar qué dropdown de pregunta está abierto
   activeQuestionDropdown: number | null = null;
 
-  // para sidebar derecho de configuracion de pregunta
+  // Para sidebar derecho de configuración de pregunta
   showConfigSidebar: boolean = false;
 
-  //propiedad para controlar si se permiten varias opciones seleccionadas
+  // Propiedad para controlar si se permiten varias opciones seleccionadas
   allowMultipleOptions: boolean = false;
 
-  //propiedad para el numero maximo de opciones seleccionables
+  // Propiedad para el número máximo de opciones seleccionables
   maxSelectableOptions: number = 2;
 
-  // propiedad para mostrar/ocultar la respuesta correcta
+  // Propiedad para mostrar/ocultar la respuesta correcta
   showCorrectAnswer: boolean = false;
 
-  //propiedad para mostrar/ocultar la descripcion de la pregunta
+  // Propiedad para mostrar/ocultar la descripción de la pregunta
   showQuestionDescription: boolean = false;
 
-  //propuedad para el texto de la descripcion
+  // Propiedad para el texto de la descripción
   questionDescription: string ='';
 
-  // propiedad para el temporizador seleccionado
+  // Propiedad para el temporizador seleccionado
   selectedTimer: number = 20;
 
-  // getter para verificar si hay al menos una respuesta correcta marcada
+  // Getter para verificar si hay al menos una respuesta correcta marcada
   get hasCorrectAnswers(): boolean {
     return this.options.some(option => option.isCorrect);
   }
 
-  // propiedades para el formualrio de opcion multilpe
+  // Propiedades para el formulario de opción múltiple
   questionText: string = '';
   options: { text: string, isCorrect: boolean }[] = [
     { text: '', isCorrect: false},
@@ -81,26 +81,38 @@ export class CrearCuestionarioForm {
     { text: '', isCorrect: false}
   ];
 
-  // propiedades para la vista de cuestionario
+  // Propiedades para la vista de cuestionario
   questionnaireTitle: string = '';
   showEmptyState: boolean = true;
+  selectedCuestionarioId: number | null = null; // ID del cuestionario seleccionado para editar
 
-  // propiedad para controlar si estamos editando una pregunta existente
+  // Propiedad para controlar si estamos editando una pregunta existente
   isEditing: boolean = false;
 
-  // ID de la pregunta que se esta editando (null si es nueva)
+  // ID de la pregunta que se está editando (null si es nueva)
   editingQuestionId: number | null = null;
 
-  // propiedad para el cuestionario actual
+  // Propiedad para el cuestionario actual
   currentQuestionnaireId: number | null = null;
   currentQuestionnaireName: string = '';
+  currentQuestionnaire: any = null; // Objeto completo del cuestionario actual
   questionnaireQuestions: any[] = []; // Preguntas del cuestionario actual
+  cuestionarios: any[] = []; // Cuestionarios del cuestionario actual
+  cuestionarioQuestions: any[] = []; // Preguntas del cuestionario seleccionado
 
-  // porpiedad para mostrar/ocultar el temporizdor de la pregunta
+  // Propiedad para mostrar/ocultar el temporizador de la pregunta
   showQuestionTimer: boolean = false;
 
-  // propiedad para mostrar/ocultar el dropdown del temporizador
+  // Propiedad para mostrar/ocultar el dropdown del temporizador
   showTimerDropdown: boolean = false;
+
+  // Propiedad para mostrar/ocultar los botones de control del cuestionario
+  showQuestionnaireControls: boolean = false;
+
+  // Propiedades para el sistema de toast
+  showToast: boolean = false;
+  toastMessage: string = '';
+  toastType: 'success' | 'error' = 'success';
 
   ngOnInit() {
     // obtener el ID y nombre del cuestionario desde los querry params
@@ -116,14 +128,19 @@ export class CrearCuestionarioForm {
     });
   }
 
-  // Método para cargar las preguntas del cuestionario actual
+  // Método para cargar las preguntas y cuestionarios del cuestionario actual
   loadQuestionnaireQuestions() {
     if (!this.currentQuestionnaireId) return;
 
     this.questionnaireService.getQuestionnaire(this.currentQuestionnaireId).subscribe({
       next: (questionnaire) => {
+        // Guardar el cuestionario completo para acceder al código
+        this.currentQuestionnaire = questionnaire;
+        // El backend ya filtra las preguntas para mostrar solo las del cuestionario principal
         this.questionnaireQuestions = questionnaire.questions || [];
-        console.log('Preguntas cargadas:', this.questionnaireQuestions);
+        this.cuestionarios = questionnaire.cuestionarios || [];
+        console.log('Preguntas cargadas (solo del cuestionario principal):', this.questionnaireQuestions);
+        console.log('Cuestionarios cargados:', this.cuestionarios);
       },
       error: (error) => {
         console.error('Error loading questions:', error);
@@ -337,12 +354,18 @@ export class CrearCuestionarioForm {
       description: this.questionDescription,
       question_type: this.selectedQuestionType,
       allow_multiple: this.allowMultipleOptions,
-      max_options: this.maxSelectableOptions
+      max_options: this.maxSelectableOptions,
+      time: this.showQuestionTimer ? this.selectedTimer : null
     }
 
-    // manear diferentes tipos de pregunta
-    if (this.selectedQuestionType === 'multiple') {
-      // para preguntas multiples validar y procesar opciones
+    // Si estamos en un cuestionario, agregar cuestionario_id
+    if (this.selectedCuestionarioId) {
+      questionData.cuestionario_id = this.selectedCuestionarioId;
+    }
+
+    // manejar diferentes tipos de pregunta
+    if (this.selectedQuestionType === 'multiple' || this.selectedQuestionType === 'questionnaire') {
+      // para preguntas multiples y de cuestionario, procesar opciones
       const validOptions = this.options
       .filter(opt => opt.text.trim())
       .map(opt => ({
@@ -373,7 +396,7 @@ export class CrearCuestionarioForm {
           alert('pregunta actualizada exitosamente');
           console.log('Pregunta actualizada', response);
 
-          // recargar preguntas depues de actualizar
+          // recargar preguntas despues de actualizar
           this.loadQuestionnaireQuestions();
 
           // reset form y flags de edicion
@@ -516,11 +539,37 @@ export class CrearCuestionarioForm {
     }
   }
 
-  // metodo par eliminar el cuestionario actual
+  // metodo par eliminar el cuestionario actual o cuestionario seleccionado
   deleteQuestionnaire() {
-    if (confirm('¿Estás seguro de que quieres eliminar este cuestionario?')) {
-      // aqui ira la logica del backend despues
-      console.log ('Eliminar cuestionario:', this.currentQuestionnaireId);
+    if (this.selectedCuestionarioId) {
+      // Eliminar cuestionario seleccionado
+      if (confirm('¿Estás seguro de que quieres eliminar este cuestionario?')) {
+        this.questionnaireService.deleteCuestionario(this.currentQuestionnaireId!, this.selectedCuestionarioId).subscribe({
+          next: (response) => {
+            alert('Cuestionario eliminado exitosamente');
+            console.log('Cuestionario eliminado:', response);
+
+            // Recargar datos
+            this.loadQuestionnaireQuestions();
+
+            // Resetear selección
+            this.selectedCuestionarioId = null;
+            this.questionnaireTitle = '';
+            this.currentView = 'options';
+            this.showEmptyState = true;
+          },
+          error: (error) => {
+            console.error('Error al eliminar cuestionario:', error);
+            alert('Error al eliminar cuestionario. Revisa la consola para más detalles.');
+          }
+        });
+      }
+    } else {
+      // Eliminar el cuestionario completo (no implementado aún)
+      if (confirm('¿Estás seguro de que quieres eliminar este cuestionario completo?')) {
+        console.log('Eliminar cuestionario completo:', this.currentQuestionnaireId);
+        // Aquí iría la lógica para eliminar el cuestionario completo
+      }
     }
   }
 
@@ -532,6 +581,96 @@ export class CrearCuestionarioForm {
     this.seleccionarTipo('questionnaire');
     // aqui ira la logaica del backend desues
     console.log('Añadir otra pregunta de cuestionario');
+  }
+
+  // metodo para seleccionar un cuestionario existente
+  selectCuestionario(cuestionario: any) {
+    this.questionnaireTitle = cuestionario.name;
+    this.selectedCuestionarioId = cuestionario.id;
+    this.currentView = 'cuestionario';
+
+    // Cargar preguntas del cuestionario
+    if (this.currentQuestionnaireId) {
+      this.questionnaireService.getCuestionarioQuestions(this.currentQuestionnaireId, cuestionario.id).subscribe({
+        next: (questions) => {
+          this.cuestionarioQuestions = questions;
+          this.showEmptyState = false; // Ocultar estado vacío ya que tenemos preguntas
+          console.log('Preguntas del cuestionario cargadas:', questions);
+        },
+        error: (error) => {
+          console.error('Error loading cuestionario questions:', error);
+          alert('Error al cargar las preguntas del cuestionario');
+        }
+      });
+    }
+  }
+
+  // metodo para añadir pregunta al cuestionario seleccionado
+  addQuestionToCuestionario() {
+    this.seleccionarTipo('questionnaire');
+  }
+
+  // metodo para agregar o actualizar un cuestionario
+  addCuestionario() {
+    if (!this.questionnaireTitle.trim()) {
+      alert('Por favor ingresa el nombre del cuestionario');
+      return;
+    }
+
+    if (!this.currentQuestionnaireId) {
+      alert('Error: No se encontró el cuestionario actual');
+      return;
+    }
+
+    if (this.selectedCuestionarioId) {
+      // Actualizar cuestionario existente
+      this.questionnaireService.updateCuestionario(
+        this.currentQuestionnaireId,
+        this.selectedCuestionarioId,
+        this.questionnaireTitle
+      ).subscribe({
+        next: (response) => {
+          alert('Cuestionario actualizado exitosamente');
+          console.log('Cuestionario actualizado:', response);
+
+          // Recargar cuestionarios
+          this.loadQuestionnaireQuestions();
+
+          // Resetear
+          this.questionnaireTitle = '';
+          this.selectedCuestionarioId = null;
+          this.currentView = 'options';
+          this.showEmptyState = false;
+        },
+        error: (error) => {
+          console.error('Error al actualizar cuestionario:', error);
+          alert('Error al actualizar cuestionario. Revisa la consola para más detalles.');
+        }
+      });
+    } else {
+      // Crear nuevo cuestionario
+      this.questionnaireService.addCuestionarioToQuestionnaire(
+        this.currentQuestionnaireId,
+        this.questionnaireTitle
+      ).subscribe({
+        next: (response) => {
+          alert('Cuestionario agregado exitosamente');
+          console.log('Cuestionario agregado:', response);
+
+          // Recargar cuestionarios
+          this.loadQuestionnaireQuestions();
+
+          // Resetear el título y cambiar vista
+          this.questionnaireTitle = '';
+          this.currentView = 'options';
+          this.showEmptyState = false; // Ocultar estado vacío
+        },
+        error: (error) => {
+          console.error('Error al agregar cuestionario:', error);
+          alert('Error al agregar cuestionario. Revisa la consola para más detalles.');
+        }
+      });
+    }
   }
 
   // metodo para mostrar/ocultar el dropdown del temporizador
@@ -560,5 +699,56 @@ export class CrearCuestionarioForm {
     // Si selecciona "Sin temporizador" (0), desactivar el toggle del sidebar
     this.showQuestionTimer = seconds > 0;
     this.showTimerDropdown = false;
+  }
+
+  // Método para mostrar mensajes toast
+  showToastMessage(message: string, type: 'success' | 'error' = 'success') {
+    this.toastMessage = message;
+    this.toastType = type;
+    this.showToast = true;
+
+    // Ocultar automáticamente después de 3 segundos
+    setTimeout(() => {
+      this.showToast = false;
+    }, 3000);
+  }
+
+  // Método para copiar el código de acceso al portapapeles
+  copyAccessCode() {
+    if (this.currentQuestionnaire?.access_code) {
+      navigator.clipboard.writeText(this.currentQuestionnaire.access_code).then(() => {
+        this.showToastMessage(`¡Código ${this.currentQuestionnaire.access_code} copiado!`, 'success');
+      }).catch(err => {
+        console.error('Error al copiar:', err);
+        // Fallback para navegadores antiguos
+        const textArea = document.createElement('textarea');
+        textArea.value = this.currentQuestionnaire.access_code;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        this.showToastMessage(`¡Código ${this.currentQuestionnaire.access_code} copiado!`, 'success');
+      });
+    }
+  }
+
+  // Método para iniciar con el cuestionario
+  startQuestionnaire() {
+    this.showQuestionnaireControls = true;
+  }
+
+  // Método para detener el cuestionario
+  stopQuestionnaire() {
+    this.showQuestionnaireControls = false;
+  }
+
+  // Método para ir a la primera pregunta
+  goToFirstQuestion() {
+    alert('Funcionalidad de ir a primera pregunta pendiente de implementar');
+  }
+
+  // Método para ir a la pregunta anterior
+  goToPreviousQuestion() {
+    alert('Funcionalidad de ir a pregunta anterior pendiente de implementar');
   }
 }

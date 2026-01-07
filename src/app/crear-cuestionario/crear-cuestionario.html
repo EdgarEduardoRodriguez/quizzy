@@ -20,6 +20,23 @@
   </div>
 </div>
 
+<!-- Toast Notification -->
+<div class="toast-container" *ngIf="showToast">
+  <div class="toast" [ngClass]="toastType">
+    <div class="toast-icon">
+      <i class="material-icons" [ngClass]="toastType">
+        {{ toastType === 'success' ? 'check_circle' : 'error' }}
+      </i>
+    </div>
+    <div class="toast-content">
+      <div class="toast-message">{{ toastMessage }}</div>
+    </div>
+    <button class="toast-close" (click)="showToast = false">
+      <i class="material-icons">close</i>
+    </button>
+  </div>
+</div>
+
 <!-- BOTÓN DE COLAPSAR/EXPANDIR SIDEBAR con animación de rotación -->
 <div
   (click)="toggleSidebar()"
@@ -93,6 +110,13 @@
               <div class="stat-item">
                 <i class="material-icons">calendar_today</i>
                 <span>{{ questionnaire.created_at | date:'dd/MM/yyyy' }}</span>
+              </div>
+              <div class="stat-item access-code" *ngIf="questionnaire.access_code">
+                <i class="material-icons">vpn_key</i>
+                <span class="code-text">{{ questionnaire.access_code }}</span>
+                <button class="copy-btn" (click)="copyToClipboard(questionnaire.access_code)" title="Copiar código">
+                  <i class="material-icons">content_copy</i>
+                </button>
               </div>
             </div>
 

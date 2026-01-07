@@ -26,12 +26,8 @@ class QuestionnaireSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Questionnaire
-        fields = ['id', 'title', 'description', 'created_at', 'cuestionarios', 'questions']
+        fields = ['id', 'title', 'description', 'created_at', 'access_code', 'is_active', 'cuestionarios', 'questions']
 
     def get_questions(self, obj):
-        questions = []
-        for cuestionario in obj.cuestionarios.all():
-            questions.extend(cuestionario.question_set.all())
-        # Also include questions not in any cuestionario
-        questions.extend(obj.questions.filter(cuestionario__isnull=True))
-        return QuestionSerializer(questions, many=True).data
+        # Solo devolver preguntas que pertenecen directamente al cuestionario (no en ningún cuestionario)
+        return QuestionSerializer(obj.questions.filter(cuestionario__isnull=True), many=True).data

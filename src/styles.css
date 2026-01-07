@@ -12,3 +12,13 @@ body {
   font-weight: 400;
   line-height: 1.6;
 }
+
+/* Ocultar barras de scroll pero permitir scroll */
+::-webkit-scrollbar {
+  display: none;
+}
+
+html {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}

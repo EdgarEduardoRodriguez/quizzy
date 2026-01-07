@@ -11,5 +11,6 @@ urlpatterns = [
     path('login/', views.login_user, name='login'),
     path('token/', views.login_user, name='token_obtain_pair'),  # Login personalizado con JWT
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  # JWT refresh
+    path('quiz/<str:code>/', views.access_questionnaire_by_code, name='access_by_code'),
     path('', include(router.urls)),
 ]

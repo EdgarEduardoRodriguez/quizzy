@@ -5,6 +5,7 @@ import { CrearCuestionarioForm } from './crear-cuestionario-form/crear-cuestiona
 import { Registro } from './registro/registro';
 import { Login } from './login/login';
 import { Welcome } from './welcome/welcome';
+import { QuizGuest } from './quiz-guest/quiz-guest';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/home', pathMatch: 'full' },
@@ -13,5 +14,6 @@ export const routes: Routes = [
   { path: 'crear-cuestionario-form', component: CrearCuestionarioForm },
   { path: 'registro', component: Registro },
   { path: 'login', component: Login },
-  { path: 'welcome', component: Welcome }
+  { path: 'welcome', component: Welcome },
+  { path: 'quiz-guest/:id', component: QuizGuest }
 ];

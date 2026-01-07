@@ -48,4 +48,11 @@ export class UserService {
       headers: this.getHeaders()
     });
   }
+
+  // Método para validar código de quiz (para invitados)
+  validateQuizCode(code: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/quiz/${code}/`, {
+      headers: this.getHeaders()
+    });
+  }
 }

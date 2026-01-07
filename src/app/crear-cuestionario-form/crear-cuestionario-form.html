@@ -11,6 +11,18 @@
             <span class="sidebar-text" [class.sidebar-text-visible]="!isSidebarCollapsed" [class.sidebar-text-hidden]="isSidebarCollapsed">Nueva pregunta</span>
         </div>
 
+        <!-- Lista de cuestionarios guardados -->
+        <div class="sidebar-title" *ngIf="!isSidebarCollapsed && cuestionarios.length > 0">Cuestionarios guardados</div>
+        <div class="sidebar-item saved-question" *ngFor="let cuestionario of cuestionarios">
+            <!-- contenedor principal clickeable -->
+             <div class="question-content" (click)="selectCuestionario(cuestionario)">
+                <i class="material-icons sidebar-icon" [class.sidebar-icon-expanded]="!isSidebarCollapsed" [class.sidebar-icon-collapsed]="isSidebarCollapsed">assignment</i>
+                <span class="sidebar-text" [class.sidebar-text-visible]="!isSidebarCollapsed" [class.sidebar-text-hidden]="isSidebarCollapsed">
+                    {{ cuestionario.name | slice:0:20 }}{{ cuestionario.name.length > 20 ? '...' : '' }}
+                </span>
+             </div>
+        </div>
+
         <!-- Lista de preguntas guardadas -->
         <div class="sidebar-title" *ngIf="!isSidebarCollapsed && questionnaireQuestions.length > 0">Preguntas guardadas</div>
         <div class="sidebar-item saved-question" *ngFor="let question of questionnaireQuestions"[class.active-parent]="activeQuestionDropdown === question.id">
@@ -80,8 +92,20 @@
                     <div class="title-group">
                         <i class="material-icons">assignment</i>
                         <span>Cuestionario</span>
+                        <!-- Código de acceso para invitados -->
+                        <div class="access-code-display" *ngIf="currentQuestionnaire?.access_code">
+                            <i class="material-icons">vpn_key</i>
+                            <span class="code-label">Código de acceso:</span>
+                            <span class="code-value">{{ currentQuestionnaire.access_code }}</span>
+                            <button class="copy-code-btn" (click)="copyAccessCode()" title="Copiar código">
+                                <i class="material-icons">content_copy</i>
+                            </button>
+                        </div>
                     </div>
                     <div class="header-actions">
+                        <button class="save-btn" *ngIf="!showEmptyState && selectedCuestionarioId" (click)="addCuestionario()">
+                            Actualizar cuestionario
+                        </button>
                         <div class="delete-icon" (click)="deleteQuestionnaire()">
                             <i class="material-icons">delete_outline</i>
                         </div>
@@ -98,11 +122,62 @@
                     <!-- Estado vacío -->
                     <div class="empty-state" *ngIf="showEmptyState" id="emptyState">
                         <p class="text-muted mb-4">El cuestionario está vacío</p>
-                        <button class="btn-add-first" (click)="seleccionarTipo('questionnaire')">
+                        <button class="btn-add-first" (click)="addQuestionToCuestionario()">
                             <i class="material-icons">add</i>
                             <span>Añadir pregunta al cuestionario</span>
                         </button>
                     </div>
+
+                    <!-- Lista de preguntas del cuestionario cuando está seleccionado -->
+                    <div class="cuestionario-questions" *ngIf="!showEmptyState && selectedCuestionarioId">
+                        <div class="questions-list" *ngIf="cuestionarioQuestions.length > 0">
+        <div class="question-item" *ngFor="let question of cuestionarioQuestions; let i = index">
+            <div class="question-header">
+                <div class="question-type-number">{{ i + 1 }}</div>
+                <div class="question-text">{{ question.text }}</div>
+                <div class="question-actions">
+                    <button class="edit-btn" (click)="editQuestion(question)">
+                        <i class="material-icons">edit</i>
+                    </button>
+                </div>
+            </div>
+
+                            </div>
+                        </div>
+
+                        <!-- Botón para añadir pregunta al cuestionario -->
+                        <div class="add-question-section">
+                            <button class="btn-add-first" (click)="addQuestionToCuestionario()">
+                                <i class="material-icons">add</i>
+                                <span>Añadir pregunta al cuestionario</span>
+                            </button>
+                        </div>
+
+                <!-- Botón para iniciar con el cuestionario -->
+                <div class="start-questionnaire-section" *ngIf="!showQuestionnaireControls">
+                    <button class="btn-start-questionnaire" (click)="startQuestionnaire()">
+                        <i class="material-icons">play_arrow</i>
+                        <span>Iniciar con el cuestionario</span>
+                    </button>
+                </div>
+
+                <!-- Botones de control del cuestionario -->
+                <div class="questionnaire-controls" *ngIf="showQuestionnaireControls">
+                    <button class="btn-stop" (click)="stopQuestionnaire()">
+                        <i class="material-icons">stop</i>
+                        <span>Detener</span>
+                    </button>
+                    <button class="btn-first-question" (click)="goToFirstQuestion()">
+                        <i class="material-icons">first_page</i>
+                        <span>Primera pregunta</span>
+                    </button>
+                    <button class="btn-previous-question" (click)="goToPreviousQuestion()">
+                        <i class="material-icons">chevron_left</i>
+                        <span>Pregunta anterior</span>
+                    </button>
+                </div>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -135,6 +210,7 @@
             </div>
 
         </div>
+
 
         <!-- Vista del formulario de pregunta múltiple -->
         <div *ngIf="currentView === 'form'" class="multiple-choice-form">
@@ -378,3 +454,20 @@
      <div class="config-sidebar-overlay"
      [class.active]="showConfigSidebar"
      (click)="toggleConfigSidebar()"></div>
+
+<!-- Toast Notification -->
+<div class="toast-container" *ngIf="showToast">
+  <div class="toast" [ngClass]="toastType">
+    <div class="toast-icon">
+      <i class="material-icons" [ngClass]="toastType">
+        {{ toastType === 'success' ? 'check_circle' : 'error' }}
+      </i>
+    </div>
+    <div class="toast-content">
+      <div class="toast-message">{{ toastMessage }}</div>
+    </div>
+    <button class="toast-close" (click)="showToast = false">
+      <i class="material-icons">close</i>
+    </button>
+  </div>
+</div>

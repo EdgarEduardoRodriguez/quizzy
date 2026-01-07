@@ -42,12 +42,30 @@ class Questionnaire(models.Model):
     description = models.TextField(blank=True)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
+    access_code = models.CharField(max_length=8, unique=True, blank=True, null=True)
+    is_active = models.BooleanField(default=False)  # Para controlar si el quiz está activo
 
     class Meta:
         db_table = 'users_quizzy'
 
+    def save(self, *args, **kwargs):
+        if not self.access_code:
+            self.access_code = self.generate_unique_code()
+        super().save(*args, **kwargs)
+
+    def generate_unique_code(self):
+        import random
+        import string
+        while True:
+            # Generar código de 6 caracteres: 3 letras + 3 números
+            letters = ''.join(random.choice(string.ascii_uppercase) for _ in range(3))
+            numbers = ''.join(random.choice(string.digits) for _ in range(3))
+            code = letters + numbers
+            if not Questionnaire.objects.filter(access_code=code).exists():
+                return code
+
     def __str__(self):
-        return self.title
+        return f"{self.title} ({self.access_code})"
 
 class Cuestionario(models.Model):
     name = models.CharField(max_length=50)

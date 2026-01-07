@@ -274,6 +274,19 @@ class QuestionnaireViewSet(viewsets.ModelViewSet):
 
 
 
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def access_questionnaire_by_code(request, code):
+    """Endpoint para que los invitados accedan a un cuestionario por código"""
+    try:
+        questionnaire = Questionnaire.objects.get(access_code=code.upper())
+        serializer = QuestionnaireSerializer(questionnaire)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Questionnaire.DoesNotExist:
+        return Response({'error': 'Código de quiz no válido'}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login_user(request):

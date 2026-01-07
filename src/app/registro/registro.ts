@@ -55,13 +55,18 @@ export class Registro {
   // Método para unirse como participante con código
   onUnirseParticipante() {
     if (this.codigoQuiz.trim()) {
-      // Aquí iría la lógica para validar el código
-      console.log('Código introducido:', this.codigoQuiz);
-
-      // Por ahora solo mostramos un mensaje
-      alert(`Uniéndote al quiz con código: ${this.codigoQuiz}`);
-
-      // Aquí podrías redirigir a la página del quiz
+      // Validar el código con el backend
+      this.userService.validateQuizCode(this.codigoQuiz.trim()).subscribe({
+        next: (questionnaire) => {
+          console.log('Cuestionario encontrado:', questionnaire);
+          // Redirigir a la página de invitados con el ID del cuestionario
+          this.router.navigate(['/quiz-guest', questionnaire.id]);
+        },
+        error: (error) => {
+          console.error('Error al validar código:', error);
+          alert('Código de quiz no válido. Por favor verifica e intenta de nuevo.');
+        }
+      });
     } else {
       alert('Por favor, introduce un código válido.');
     }

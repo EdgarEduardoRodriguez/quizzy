@@ -1,0 +1,107 @@
+<div class="guest-container">
+  <!-- Encabezado azul -->
+  <header class="quiz-guest-header">
+    <div class="header-content">
+      <i class="material-icons">quiz</i>
+      <h1>{{ questionnaire?.title || 'Quiz' }}</h1>
+    </div>
+  </header>
+
+  <!-- Barra lateral con información del quiz -->
+  <aside class="quiz-sidebar" *ngIf="questionnaire">
+    <div class="sidebar-content">
+      <div class="quiz-info">
+        <div class="info-item">
+          <i class="material-icons">quiz</i>
+          <div class="info-content">
+            <span class="info-label">Nombre</span>
+            <span class="info-value">{{ questionnaire.title }}</span>
+          </div>
+        </div>
+        <div class="info-item" *ngIf="questionnaire.access_code">
+          <i class="material-icons">vpn_key</i>
+          <div class="info-content">
+            <span class="info-label">Código de acceso</span>
+            <span class="info-value">{{ questionnaire.access_code }}</span>
+          </div>
+        </div>
+        <div class="info-item" *ngIf="questionnaire.created_at">
+          <i class="material-icons">calendar_today</i>
+          <div class="info-content">
+            <span class="info-label">Fecha de creación</span>
+            <span class="info-value">{{ questionnaire.created_at | date:'dd/MM/yyyy' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Pantalla de espera -->
+  <div *ngIf="isWaiting" class="waiting-screen">
+    <div class="waiting-content">
+      <div class="quiz-logo">
+        <i class="material-icons">quiz</i>
+      </div>
+      <h1>{{ questionnaire?.title || 'Cargando...' }}</h1>
+      <p class="waiting-message">Esperando a que el anfitrión inicie el cuestionario...</p>
+      <div class="loading-spinner">
+        <div class="spinner"></div>
+      </div>
+      <p class="access-code">Código de acceso: <strong>{{ questionnaire?.access_code }}</strong></p>
+    </div>
+  </div>
+
+  <!-- Pantalla de pregunta activa -->
+  <div *ngIf="!isWaiting && !showResults" class="question-screen">
+    <div class="question-header">
+      <div class="question-counter">
+        Pregunta {{ currentQuestionIndex + 1 }} de {{ questionnaire?.questions?.length || 0 }}
+      </div>
+      <div class="timer" *ngIf="currentQuestion?.time">
+        <i class="material-icons">timer</i>
+        {{ currentQuestion.time }}s
+      </div>
+    </div>
+
+    <div class="question-content">
+      <h2 class="question-text">{{ currentQuestion?.text }}</h2>
+
+      <!-- Opciones múltiples -->
+      <div *ngIf="currentQuestion?.question_type === 'multiple'" class="options-container">
+        <div class="option-item" *ngFor="let option of currentQuestion?.options; let i = index">
+          <div class="option-letter">{{ indexToLetter(i) }}</div>
+          <div class="option-text">{{ option.text }}</div>
+        </div>
+      </div>
+
+      <!-- Pregunta abierta -->
+      <div *ngIf="currentQuestion?.question_type === 'abierta'" class="open-question">
+        <textarea
+          class="answer-input"
+          placeholder="Escribe tu respuesta aquí..."
+          rows="4"></textarea>
+      </div>
+
+      <!-- Botón de enviar respuesta -->
+      <button class="submit-answer-btn" (click)="showQuestionResults()">
+        <i class="material-icons">send</i>
+        Enviar respuesta
+      </button>
+    </div>
+  </div>
+
+  <!-- Pantalla de resultados -->
+  <div *ngIf="showResults" class="results-screen">
+    <div class="results-content">
+      <div class="results-icon">
+        <i class="material-icons">check_circle</i>
+      </div>
+      <h2>¡Respuesta enviada!</h2>
+      <p>Esperando a que el anfitrión muestre los resultados...</p>
+      <button class="back-btn" (click)="backToWaiting()">
+        <i class="material-icons">arrow_back</i>
+        Volver
+      </button>
+    </div>
+  </div>
+</div>
