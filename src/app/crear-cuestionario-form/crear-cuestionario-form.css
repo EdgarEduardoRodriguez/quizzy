@@ -1308,7 +1308,7 @@
   color: #43a047;
   border: 1px solid #43a047;
   border-radius: 8px;
-  padding: 0.75rem 1.5rem;
+  padding: 0.5rem 1rem;
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
@@ -1319,6 +1319,8 @@
 .btn-start-questionnaire:hover {
   background-color: #43a047;
   color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(67, 160, 71, 0.3);
 }
 
 .questionnaire-controls {
@@ -1837,6 +1839,8 @@
     opacity: 0;
   }
 }
+
+
 
 /* Responsive para toast */
 @media (max-width: 768px) {

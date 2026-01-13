@@ -150,16 +150,62 @@ export class Encabezado implements OnInit {
   }
 
   logout() {
-    // Limpiar tokens JWT y datos de usuario
-    localStorage.removeItem('currentUser');
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    this.isLoggedIn = false;
-    this.userInitials = '';
-    this.userName = '';
-    this.userEmail = '';
-    this.showDropdown = false;
-    this.router.navigate(['/home']);
+    // Antes de cerrar sesión, desactivar todos los cuestionarios activos del anfitrión
+    this.deactivateHostQuestionnaires().then(() => {
+      // Limpiar tokens JWT y datos de usuario
+      localStorage.removeItem('currentUser');
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      this.isLoggedIn = false;
+      this.userInitials = '';
+      this.userName = '';
+      this.userEmail = '';
+      this.showDropdown = false;
+      this.router.navigate(['/home']);
+    }).catch((error) => {
+      console.error('Error al desactivar cuestionarios:', error);
+      // Aun así hacer logout aunque haya error
+      localStorage.removeItem('currentUser');
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      this.isLoggedIn = false;
+      this.userInitials = '';
+      this.userName = '';
+      this.userEmail = '';
+      this.showDropdown = false;
+      this.router.navigate(['/home']);
+    });
+  }
+
+  // Método para desactivar todos los cuestionarios activos del anfitrión
+  private async deactivateHostQuestionnaires(): Promise<void> {
+    try {
+      const userData = localStorage.getItem('currentUser');
+      if (!userData) return;
+
+      const user = JSON.parse(userData);
+
+      // Obtener todos los cuestionarios del usuario
+      const questionnairesResponse = await this.questionnaireService.getQuestionnaires().toPromise();
+
+      if (questionnairesResponse) {
+        // Filtrar cuestionarios activos del usuario actual
+        const activeQuestionnaires = questionnairesResponse.filter((q: any) =>
+          q.user === user.id && q.is_active === true
+        );
+
+        // Desactivar cada cuestionario activo
+        const deactivatePromises = activeQuestionnaires.map((questionnaire: any) =>
+          this.questionnaireService.toggleQuestionnaireActive(questionnaire.id, false).toPromise()
+        );
+
+        await Promise.all(deactivatePromises);
+        console.log(`Desactivados ${activeQuestionnaires.length} cuestionarios activos del anfitrión`);
+      }
+    } catch (error) {
+      console.error('Error al desactivar cuestionarios del anfitrión:', error);
+      throw error;
+    }
   }
 
   // Métodos para el modal de crear cuestionario

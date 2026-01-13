@@ -44,6 +44,8 @@ class Questionnaire(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     access_code = models.CharField(max_length=8, unique=True, blank=True, null=True)
     is_active = models.BooleanField(default=False)  # Para controlar si el quiz está activo
+    current_question_index = models.IntegerField(null=True, blank=True)  # Índice de la pregunta actual mostrada
+    active_cuestionario = models.ForeignKey('Cuestionario', on_delete=models.SET_NULL, null=True, blank=True, related_name='active_questionnaires')  # Sub-cuestionario activo
 
     class Meta:
         db_table = 'users_quizzy'

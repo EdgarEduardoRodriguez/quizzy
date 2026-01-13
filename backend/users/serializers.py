@@ -14,7 +14,7 @@ class QuestionSerializer(serializers.ModelSerializer):
         fields = ['id', 'text', 'description', 'question_type', 'time', 'allow_multiple', 'max_options', 'options']
 
 class CuestionarioSerializer(serializers.ModelSerializer):
-    question_set = QuestionSerializer(many=True, read_only=True, source='questions')
+    question_set = QuestionSerializer(many=True, read_only=True)
 
     class Meta:
         model = Cuestionario
@@ -22,11 +22,12 @@ class CuestionarioSerializer(serializers.ModelSerializer):
 
 class QuestionnaireSerializer(serializers.ModelSerializer):
     cuestionarios = CuestionarioSerializer(many=True, read_only=True)
+    active_cuestionario = CuestionarioSerializer(read_only=True)
     questions = serializers.SerializerMethodField()
 
     class Meta:
         model = Questionnaire
-        fields = ['id', 'title', 'description', 'created_at', 'access_code', 'is_active', 'cuestionarios', 'questions']
+        fields = ['id', 'title', 'description', 'created_at', 'access_code', 'is_active', 'current_question_index', 'active_cuestionario', 'cuestionarios', 'questions']
 
     def get_questions(self, obj):
         # Solo devolver preguntas que pertenecen directamente al cuestionario (no en ningún cuestionario)

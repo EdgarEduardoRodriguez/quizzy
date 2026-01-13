@@ -67,4 +67,14 @@ export class QuestionnaireService {
   accessQuestionnaireByCode(code: string): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}quiz/${code}/`, { headers: this.getHeaders() });
   }
+
+  // Método para activar/desactivar un cuestionario
+  toggleQuestionnaireActive(id: number, isActive: boolean): Observable<any> {
+    return this.http.patch<any>(`${this.apiUrl}questionnaires/${id}/toggle_active/`, { is_active: isActive }, { headers: this.getHeaders() });
+  }
+
+  // Método para establecer la pregunta actual
+  setCurrentQuestion(questionnaireId: number, questionIndex: number): Observable<any> {
+    return this.http.patch<any>(`${this.apiUrl}questionnaires/${questionnaireId}/set_current_question/`, { question_index: questionIndex }, { headers: this.getHeaders() });
+  }
 }

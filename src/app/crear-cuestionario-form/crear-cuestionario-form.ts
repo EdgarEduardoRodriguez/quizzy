@@ -109,6 +109,8 @@ export class CrearCuestionarioForm {
   // Propiedad para mostrar/ocultar los botones de control del cuestionario
   showQuestionnaireControls: boolean = false;
 
+
+
   // Propiedades para el sistema de toast
   showToast: boolean = false;
   toastMessage: string = '';
@@ -734,21 +736,177 @@ export class CrearCuestionarioForm {
 
   // Método para iniciar con el cuestionario
   startQuestionnaire() {
-    this.showQuestionnaireControls = true;
+    if (!this.currentQuestionnaireId) {
+      alert('Error: No se encontró el cuestionario actual');
+      return;
+    }
+
+    console.log('Iniciando cuestionario con sub-cuestionario seleccionado:', this.selectedCuestionarioId);
+
+    // Usar el endpoint que maneja active_cuestionario
+    const requestData = {
+      is_active: true,
+      active_cuestionario: this.selectedCuestionarioId || null,
+      current_question_index: null  // Resetear la pregunta actual al iniciar
+    };
+
+    // Llamar al endpoint PATCH para activar y establecer el sub-cuestionario activo
+    fetch(`http://127.0.0.1:8000/api/questionnaires/${this.currentQuestionnaireId}/toggle_active/`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestData)
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log('Respuesta del servidor:', data);
+      this.showQuestionnaireControls = true;
+      this.showToastMessage('¡Cuestionario iniciado! Los invitados pueden comenzar a responder.', 'success');
+    })
+    .catch(error => {
+      console.error('Error al activar cuestionario:', error);
+      alert('Error al iniciar el cuestionario');
+    });
   }
 
   // Método para detener el cuestionario
   stopQuestionnaire() {
-    this.showQuestionnaireControls = false;
+    if (!this.currentQuestionnaireId) {
+      alert('Error: No se encontró el cuestionario actual');
+      return;
+    }
+
+    console.log('Deteniendo cuestionario:', this.currentQuestionnaireId);
+
+    this.questionnaireService.toggleQuestionnaireActive(this.currentQuestionnaireId, false).subscribe({
+      next: (response) => {
+        console.log('Respuesta al detener cuestionario:', response);
+        this.showQuestionnaireControls = false;
+        this.showToastMessage('Cuestionario detenido. Los invitados ya no pueden responder.', 'success');
+        console.log('Cuestionario desactivado exitosamente');
+      },
+      error: (error) => {
+        console.error('Error al desactivar cuestionario:', error);
+        alert('Error al detener el cuestionario');
+      }
+    });
   }
 
   // Método para ir a la primera pregunta
   goToFirstQuestion() {
-    alert('Funcionalidad de ir a primera pregunta pendiente de implementar');
+    if (!this.currentQuestionnaireId) {
+      alert('Error: No se encontró el cuestionario actual');
+      return;
+    }
+
+    console.log('goToFirstQuestion called');
+    console.log('selectedCuestionarioId:', this.selectedCuestionarioId);
+
+    const questionnaireId = this.currentQuestionnaireId; // Variable local para evitar problemas de tipo
+
+    // Obtener el cuestionario completo para acceder a los sub-cuestionarios
+    this.questionnaireService.getQuestionnaire(questionnaireId).subscribe({
+      next: (questionnaire) => {
+        console.log('Cuestionario obtenido para primera pregunta:', {
+          cuestionarios: questionnaire.cuestionarios,
+          questions: questionnaire.questions,
+          active_cuestionario: questionnaire.active_cuestionario
+        });
+
+        let firstQuestion = null;
+        let questionIndex: number = 0;
+
+        // Si hay un sub-cuestionario activo, tomar su primera pregunta
+        console.log('Verificando active_cuestionario:', questionnaire.active_cuestionario);
+        if (questionnaire.active_cuestionario) {
+          console.log('Active cuestionario existe:', questionnaire.active_cuestionario);
+          console.log('Question set:', questionnaire.active_cuestionario.question_set);
+          if (questionnaire.active_cuestionario.question_set && questionnaire.active_cuestionario.question_set.length > 0) {
+            firstQuestion = questionnaire.active_cuestionario.question_set[0];
+            console.log('Tomando primera pregunta del sub-cuestionario ACTIVO:', questionnaire.active_cuestionario.name);
+          } else {
+            console.log('Active cuestionario no tiene question_set o está vacío');
+          }
+        } else {
+          console.log('No hay active_cuestionario');
+        }
+
+        // Si no hay activo pero hay seleccionado, tomar del seleccionado
+        if (!firstQuestion && this.selectedCuestionarioId) {
+          console.log('Buscando sub-cuestionario seleccionado ID:', this.selectedCuestionarioId);
+          console.log('Cuestionarios disponibles:', questionnaire.cuestionarios);
+          const selectedSubCuestionario = questionnaire.cuestionarios?.find(
+            (sub: any) => {
+              console.log('Comparando sub.id:', sub.id, 'con selectedCuestionarioId:', this.selectedCuestionarioId);
+              return sub.id === this.selectedCuestionarioId;
+            }
+          );
+
+          console.log('Sub-cuestionario encontrado:', selectedSubCuestionario);
+          if (selectedSubCuestionario) {
+            console.log('Question set del seleccionado:', selectedSubCuestionario.question_set);
+            if (selectedSubCuestionario.question_set && selectedSubCuestionario.question_set.length > 0) {
+              firstQuestion = selectedSubCuestionario.question_set[0];
+              console.log('Tomando primera pregunta del sub-cuestionario SELECCIONADO:', selectedSubCuestionario.name);
+            } else {
+              console.log('Sub-cuestionario seleccionado no tiene question_set o está vacío');
+            }
+          } else {
+            console.log('No se encontró el sub-cuestionario seleccionado');
+          }
+        }
+
+        // Fallback: buscar el primer sub-cuestionario con preguntas
+        if (!firstQuestion) {
+          const subCuestionarios = questionnaire.cuestionarios || [];
+          for (const subCuestionario of subCuestionarios) {
+            if (subCuestionario.question_set && subCuestionario.question_set.length > 0) {
+              firstQuestion = subCuestionario.question_set[0];
+              console.log('Tomando primera pregunta del primer sub-cuestionario disponible:', subCuestionario.name);
+              break;
+            }
+          }
+        }
+
+        // Último fallback: preguntas principales
+        if (!firstQuestion && questionnaire.questions && questionnaire.questions.length > 0) {
+          firstQuestion = questionnaire.questions[0];
+          console.log('Tomando primera pregunta de las preguntas principales');
+        }
+
+        if (!firstQuestion) {
+          alert('No hay preguntas guardadas en este cuestionario');
+          return;
+        }
+
+        console.log('Pregunta que se va a mostrar:', firstQuestion);
+
+        // Establecer como pregunta actual en el backend
+        this.questionnaireService.setCurrentQuestion(questionnaireId, questionIndex || 0).subscribe({
+          next: (response) => {
+            // Mostrar mensaje de éxito
+            this.showToastMessage(`¡Pregunta mostrada! "${firstQuestion.text}"`, 'success');
+
+            console.log('Primera pregunta establecida para invitados:', firstQuestion);
+          },
+          error: (error) => {
+            console.error('Error al establecer pregunta actual:', error);
+            alert('Error al mostrar la pregunta a los invitados');
+          }
+        });
+      },
+      error: (error) => {
+        console.error('Error al obtener cuestionario:', error);
+        alert('Error al cargar el cuestionario');
+      }
+    });
   }
 
-  // Método para ir a la pregunta anterior
-  goToPreviousQuestion() {
-    alert('Funcionalidad de ir a pregunta anterior pendiente de implementar');
+
+
+  // Método para convertir índice a letra (A, B, C, etc.)
+  indexToLetter(index: number): string {
+    return String.fromCharCode(65 + index); // 65 es el código ASCII de 'A'
   }
 }

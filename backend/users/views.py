@@ -271,6 +271,45 @@ class QuestionnaireViewSet(viewsets.ModelViewSet):
         except Cuestionario.DoesNotExist:
             return Response({'error': 'Cuestionario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
 
+    @action(detail=True, methods=['patch'], permission_classes=[AllowAny])
+    def toggle_active(self, request, pk=None):
+        # Endpoint para activar/desactivar un cuestionario
+        questionnaire = self.get_object()
+        is_active = request.data.get('is_active', False)
+
+        questionnaire.is_active = is_active
+
+        # Si se está activando y se proporciona active_cuestionario, guardarlo
+        if is_active and 'active_cuestionario' in request.data:
+            active_cuestionario_id = request.data.get('active_cuestionario')
+            if active_cuestionario_id:
+                try:
+                    from .models import Cuestionario
+                    active_cuestionario = Cuestionario.objects.get(id=active_cuestionario_id, questionnaire=questionnaire)
+                    questionnaire.active_cuestionario = active_cuestionario
+                except Cuestionario.DoesNotExist:
+                    pass  # Si no existe, no hacer nada
+
+        questionnaire.save()
+
+        serializer = self.get_serializer(questionnaire)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['patch'], permission_classes=[AllowAny])
+    def set_current_question(self, request, pk=None):
+        # Endpoint para establecer la pregunta actual
+        questionnaire = self.get_object()
+        question_index = request.data.get('question_index')
+
+        if question_index is None:
+            return Response({'error': 'Se requiere question_index'}, status=status.HTTP_400_BAD_REQUEST)
+
+        questionnaire.current_question_index = question_index
+        questionnaire.save()
+
+        serializer = self.get_serializer(questionnaire)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 
 

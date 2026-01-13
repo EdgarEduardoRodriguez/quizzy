@@ -36,41 +36,95 @@
     </div>
   </aside>
 
+  <!-- Pantalla de ingreso de nombre -->
+  <div *ngIf="showNameInput" class="name-input-screen">
+    <div class="name-input-content">
+      <div class="quiz-logo">
+        <i class="material-icons">person</i>
+      </div>
+      <h1>¡Bienvenido!</h1>
+      <p class="name-input-message">Ingresa tu nombre para participar en el cuestionario</p>
+
+      <div class="name-input-form">
+        <input
+          type="text"
+          class="name-input"
+          placeholder="Tu nombre completo"
+          [(ngModel)]="guestName"
+          (keyup.enter)="continueWithQuiz()"
+          maxlength="50"
+        />
+
+        <div class="name-input-buttons">
+          <button class="continue-btn" (click)="continueWithQuiz()">
+            <i class="material-icons">arrow_forward</i>
+            Continuar
+          </button>
+
+          <button class="back-btn" (click)="backToWaitingWithoutName()">
+            <i class="material-icons">arrow_back</i>
+            Volver
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Pantalla de espera -->
   <div *ngIf="isWaiting" class="waiting-screen">
     <div class="waiting-content">
       <div class="quiz-logo">
-        <i class="material-icons">quiz</i>
+        <i class="material-icons" [class]="questionnaire?.is_active && guestName ? 'check_circle' : 'quiz'"></i>
       </div>
-      <h1>{{ questionnaire?.title || 'Cargando...' }}</h1>
-      <p class="waiting-message">Esperando a que el anfitrión inicie el cuestionario...</p>
-      <div class="loading-spinner">
+      <h1 *ngIf="!questionnaire?.is_active">{{ questionnaire?.title || 'Cargando...' }}</h1>
+      <h1 *ngIf="questionnaire?.is_active">{{ getActiveCuestionarioName() }}</h1>
+      <p class="waiting-message" *ngIf="!questionnaire?.is_active">
+        Esperando a que el anfitrión inicie el cuestionario...
+      </p>
+      <p class="waiting-message" *ngIf="questionnaire?.is_active && !guestName">
+        ¡Cuestionario iniciado! Ingresa tu nombre para participar...
+      </p>
+      <p class="waiting-message ready-message" *ngIf="questionnaire?.is_active && guestName">
+        ¡Estás listo para responder en "{{ getActiveCuestionarioName() }}"! Esperando la primera pregunta...
+      </p>
+      <div class="loading-spinner" *ngIf="!questionnaire?.is_active">
         <div class="spinner"></div>
+      </div>
+      <div class="ready-indicator" *ngIf="questionnaire?.is_active && guestName">
+        <i class="material-icons">check_circle</i>
+        <span>Conectado como: <strong>{{ guestName }}</strong></span>
       </div>
       <p class="access-code">Código de acceso: <strong>{{ questionnaire?.access_code }}</strong></p>
     </div>
   </div>
 
   <!-- Pantalla de pregunta activa -->
-  <div *ngIf="!isWaiting && !showResults" class="question-screen">
-    <div class="question-header">
-      <div class="question-counter">
-        Pregunta {{ currentQuestionIndex + 1 }} de {{ questionnaire?.questions?.length || 0 }}
-      </div>
-      <div class="timer" *ngIf="currentQuestion?.time">
-        <i class="material-icons">timer</i>
-        {{ currentQuestion.time }}s
-      </div>
-    </div>
-
+  <div *ngIf="!isWaiting && !showResults && guestName" class="question-screen">
     <div class="question-content">
+      <!-- Temporizador -->
+      <div *ngIf="currentQuestion?.time && currentQuestion.time > 0" class="question-timer">
+        <div class="timer-display">
+          <i class="material-icons">timer</i>
+          <span>{{ formatTime(currentQuestion.time) }}</span>
+        </div>
+      </div>
+
       <h2 class="question-text">{{ currentQuestion?.text }}</h2>
 
+      <!-- Descripción de la pregunta -->
+      <div *ngIf="currentQuestion?.description" class="question-description">
+        <p>{{ currentQuestion.description }}</p>
+      </div>
+
       <!-- Opciones múltiples -->
-      <div *ngIf="currentQuestion?.question_type === 'multiple'" class="options-container">
-        <div class="option-item" *ngFor="let option of currentQuestion?.options; let i = index">
+      <div *ngIf="currentQuestion?.question_type === 'multiple' || currentQuestion?.question_type === 'questionnaire'" class="options-container">
+        <div [ngClass]="getOptionClass(i)" *ngFor="let option of currentQuestion?.options; let i = index" (click)="selectOption(i)">
           <div class="option-letter">{{ indexToLetter(i) }}</div>
           <div class="option-text">{{ option.text }}</div>
+          <!-- Mostrar indicador de resultado después de contestar -->
+          <div *ngIf="hasAnswered" class="result-indicator" [ngClass]="getResultIconClass(i)">
+            <i class="material-icons">{{ getResultIcon(i) }}</i>
+          </div>
         </div>
       </div>
 
@@ -79,13 +133,14 @@
         <textarea
           class="answer-input"
           placeholder="Escribe tu respuesta aquí..."
-          rows="4"></textarea>
+          rows="4"
+          [(ngModel)]="userAnswer"></textarea>
       </div>
 
       <!-- Botón de enviar respuesta -->
-      <button class="submit-answer-btn" (click)="showQuestionResults()">
+      <button class="submit-answer-btn" (click)="showQuestionResults()" [disabled]="!hasSelectedOption">
         <i class="material-icons">send</i>
-        Enviar respuesta
+        {{ hasSelectedOption ? 'Enviar respuesta' : 'Selecciona una opción' }}
       </button>
     </div>
   </div>
@@ -101,6 +156,22 @@
       <button class="back-btn" (click)="backToWaiting()">
         <i class="material-icons">arrow_back</i>
         Volver
+      </button>
+    </div>
+  </div>
+
+  <!-- Pantalla de cuestionario detenido -->
+  <div *ngIf="showStoppedMessage" class="stopped-screen">
+    <div class="stopped-content">
+      <div class="stopped-icon">
+        <i class="material-icons">stop_circle</i>
+      </div>
+      <h2>Cuestionario detenido</h2>
+      <p>El anfitrión ha detenido el cuestionario.</p>
+      <p>Gracias por participar.</p>
+      <button class="exit-btn" (click)="disconnectGuest()">
+        <i class="material-icons">exit_to_app</i>
+        Salir
       </button>
     </div>
   </div>
